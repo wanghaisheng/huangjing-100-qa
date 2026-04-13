@@ -1,0 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Anton&family=JetBrains+Mono:wght@500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Anton", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  
+  --color-brutal-black: #000000;
+  --color-gallery-white: #FFFDF5;
+  --color-neon-orange: #FF6321;
+}
+
+@layer base {
+  body {
+    @apply bg-[var(--color-gallery-white)] text-[var(--color-brutal-black)] font-sans antialiased selection:bg-[var(--color-neon-orange)] selection:text-white;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/noiseFilter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 150px;
+    background-blend-mode: overlay;
+  }
+}
+
+.brutal-border {
+  @apply border-2 border-[var(--color-brutal-black)];
+}
+
+.brutal-shadow {
+  @apply shadow-[8px_8px_0px_0px_rgba(0,0,0,1)];
+}
+
+.brutal-shadow-orange {
+  @apply shadow-[8px_8px_0px_0px_#FF6321];
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-[var(--color-gallery-white)] border-l-2 border-[var(--color-brutal-black)];
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-[var(--color-brutal-black)] border-2 border-[var(--color-gallery-white)];
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-[var(--color-neon-orange)];
+}
