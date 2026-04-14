@@ -1,10 +1,12 @@
+export type I18nString = string | { zh: string; en: string };
+
 export interface Paper {
   id: number;
-  title: { zh: string; en: string };
-  source: { zh: string; en: string };
+  title: I18nString;
+  source: I18nString;
   year: number;
-  category: { zh: string; en: string };
-  significance: { zh: string; en: string };
+  category: I18nString;
+  significance: I18nString;
 }
 
 export const CATEGORIES = [

@@ -4,6 +4,7 @@ export const APP_CONFIG = {
   NAME: `药食同源百问百答 • ${SITE_CONFIG.herbNameZh}篇`,
   NAME_EN: `Medicinal & Edible Homology Series • ${SITE_CONFIG.herbNameEn} Chapter`,
   SERIES_NAME: '药食同源百问百答系列',
+  SERIES_NAME_EN: 'Medicinal & Edible Homology Series',
   COPYRIGHT: '© 2026 Medicinal & Edible Homology Series',
   DUCKDB_VERSION: '1.28.0',
   DUCKDB_CDN_BASE: 'https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.28.0/dist',
@@ -40,4 +41,18 @@ export const HERBS_LIST = [
   "槐米", "槐花", "蒲公英", "榧子", "酸枣仁", "鲜白茅根", "鲜芦根", "蝮蛇", "橘皮", "薄荷",
   "薏苡仁", "薤白", "覆盆子", "藿香", "当归", "山柰", "西红花（藏红花）", "草果", "姜黄", "荜茇",
   "西洋参", "灵芝", "天麻", "杜仲叶", "地黄", "麦冬", "人参", "山银花", "芫荽", "玫瑰花"
+];
+
+export const HERBS_LIST_EN = [
+  "Hawthorn", "Smoked Plum", "Licorice", "Mulberry Leaf", "Mulberry Fruit", "Huangjing", "Honey", "Dendrobium", "Cistanche", "Exocarpium",
+  "Codonopsis", "Astragalus", "Cornus", "Asparagus", "Clove", "Star Anise", "Sword Bean", "Fennel", "Thistle", "Yam",
+  "Purslane", "Snake", "Papaya", "Hemp Seed", "Citrus", "Solomonseal", "Angelica", "Ginkgo", "White Bean", "White Bean Flower",
+  "Longan", "Cassia Seed", "Lily", "Nutmeg", "Cinnamon", "Phyllanthus", "Bergamot", "Almond", "Sea Buckthorn", "Oyster",
+  "Gorgon Fruit", "Sichuan Pepper", "Adzuki Bean", "Donkey-hide Gelatin", "Chicken Gizzard", "Malt", "Kelp", "Jujube", "Monk Fruit", "Prunus",
+  "Honeysuckle", "Olive", "Houttuynia", "Ginger", "Hovenia", "Goji Berry", "Gardenia", "Amomum", "Sterculia", "Poria",
+  "Citron", "Elsholtzia", "Peach Kernel", "Exocarpium", "Platycodon", "Alpinia Oxyphylla", "Lotus Leaf", "Radish Seed", "Lotus Seed", "Galangal",
+  "Bamboo Leaf", "Douchi", "Chrysanthemum", "Chicory", "Mustard Seed", "Perilla", "Perilla Seed", "Kudzu", "Black Sesame", "Black Pepper",
+  "Pagoda Bud", "Pagoda Flower", "Dandelion", "Torreya", "Sour Jujube", "Imperata", "Phragmites", "Viper", "Orange Peel", "Mint",
+  "Coix Seed", "Allium", "Raspberry", "Agastache", "Angelica Sinensis", "Kaempferia", "Saffron", "Tsaoko", "Turmeric", "Long Pepper",
+  "American Ginseng", "Ganoderma", "Gastrodia", "Eucommia Leaf", "Rehmannia", "Ophiopogon", "Ginseng", "Lonicera", "Coriander", "Rose"
 ];

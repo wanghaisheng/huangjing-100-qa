@@ -3,36 +3,39 @@ import { motion, AnimatePresence } from 'motion/react';
 import { BrutalScience, BrutalData, BrutalShield, BrutalHistory, BrutalProcess, BrutalMetabolism, BrutalPlant, BrutalBottle } from './BrutalArt';
 import { PAGES_STRINGS } from '../i18n/pages';
 import { Language } from '../i18n/config';
-import { APP_CONFIG, HERBS_LIST } from '../constants/config';
+import { APP_CONFIG, HERBS_LIST, HERBS_LIST_EN } from '../constants/config';
 import { DataService } from '../services/dataService';
 import { BookOpen, GraduationCap, RefreshCw } from 'lucide-react';
 
-const HerbGrid = () => (
-  <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-8 lg:grid-cols-10 gap-px bg-[var(--color-brutal-black)] border-2 border-[var(--color-brutal-black)]">
-    {HERBS_LIST.map((herb, i) => (
-      <motion.div
-        key={i}
-        initial={{ opacity: 0, scale: 0.9 }}
-        whileInView={{ opacity: 1, scale: 1 }}
-        viewport={{ once: true }}
-        transition={{ delay: (i % 10) * 0.05 + Math.floor(i / 10) * 0.02 }}
-        whileHover={{ zIndex: 10, scale: 1.05, rotate: i % 2 === 0 ? 1 : -1 }}
-        className="aspect-square bg-[var(--color-gallery-white)] flex flex-col items-center justify-center p-2 text-center text-[var(--color-brutal-black)] hover:bg-[var(--color-neon-orange)] hover:text-white transition-colors cursor-pointer group relative"
-      >
-        <span className="text-[10px] font-mono font-bold opacity-30 mb-1 group-hover:opacity-100">{String(i + 1).padStart(3, '0')}</span>
-        <span className="text-sm sm:text-base font-display font-bold leading-none break-all px-1">
-          {herb}
-        </span>
-        {/* Decorative corner */}
-        <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-black/10 group-hover:border-white/40" />
-      </motion.div>
-    ))}
-    {/* Fillers to make it look like a complete wall */}
-    {Array.from({ length: 10 - (HERBS_LIST.length % 10) }).map((_, i) => (
-      <div key={`filler-${i}`} className="aspect-square bg-white/5 hidden lg:block" />
-    ))}
-  </div>
-);
+const HerbGrid = ({ language }: { language: Language }) => {
+  const list = language === 'zh' ? HERBS_LIST : HERBS_LIST_EN;
+  return (
+    <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-8 lg:grid-cols-10 gap-px bg-[var(--color-brutal-black)] border-2 border-[var(--color-brutal-black)]">
+      {list.map((herb, i) => (
+        <motion.div
+          key={i}
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: (i % 10) * 0.05 + Math.floor(i / 10) * 0.02 }}
+          whileHover={{ zIndex: 10, scale: 1.05, rotate: i % 2 === 0 ? 1 : -1 }}
+          className="aspect-square bg-[var(--color-gallery-white)] flex flex-col items-center justify-center p-2 text-center text-[var(--color-brutal-black)] hover:bg-[var(--color-neon-orange)] hover:text-white transition-colors cursor-pointer group relative"
+        >
+          <span className="text-[10px] font-mono font-bold opacity-30 mb-1 group-hover:opacity-100">{String(i + 1).padStart(3, '0')}</span>
+          <span className="text-sm sm:text-base font-display font-bold leading-none break-all px-1">
+            {herb}
+          </span>
+          {/* Decorative corner */}
+          <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-black/10 group-hover:border-white/40" />
+        </motion.div>
+      ))}
+      {/* Fillers to make it look like a complete wall */}
+      {Array.from({ length: 10 - (list.length % 10) }).map((_, i) => (
+        <div key={`filler-${i}`} className="aspect-square bg-white/5 hidden lg:block" />
+      ))}
+    </div>
+  );
+};
 
 interface LandingPageProps {
   onNavigate: (tab: 'papers' | 'faq' | 'full_database' | 'about' | 'data_source' | 'contact', category?: string) => void;
@@ -69,6 +72,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, language }
       setIsShaking(false);
     }, 800);
   };
+
+  const faqCategories = [
+    { icon: <BrutalHistory />, ...t.FAQ_OVERVIEW.CATEGORIES[0] },
+    { icon: <BrutalProcess />, ...t.FAQ_OVERVIEW.CATEGORIES[1] },
+    { icon: <BrutalMetabolism />, ...t.FAQ_OVERVIEW.CATEGORIES[2] },
+    { icon: <BrutalMetabolism />, ...t.FAQ_OVERVIEW.CATEGORIES[3] },
+    { icon: <BrutalScience />, ...t.FAQ_OVERVIEW.CATEGORIES[4] },
+    { icon: <BrutalShield />, ...t.FAQ_OVERVIEW.CATEGORIES[5] },
+  ];
 
   return (
     <div className="min-h-screen bg-transparent text-[var(--color-brutal-black)]">
@@ -127,7 +139,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, language }
             <div className="h-px flex-1 bg-black/10"></div>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
-            <div onClick={() => onNavigate('papers', '药理作用与机制')} className="md:col-span-2 cursor-pointer">
+            <div onClick={() => onNavigate('papers', '肠道健康与免疫调节')} className="md:col-span-2 cursor-pointer">
               <BrutalCard 
                 index={0}
                 title={t.METHODOLOGY.CARDS[0].title} 
@@ -136,7 +148,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, language }
                 <BrutalScience />
               </BrutalCard>
             </div>
-            <div onClick={() => onNavigate('papers', '炮制工艺研究')} className="md:col-span-1 cursor-pointer">
+            <div onClick={() => onNavigate('papers', '炮制工艺与“九蒸九制”')} className="md:col-span-1 cursor-pointer">
               <BrutalCard 
                 index={1}
                 title={t.METHODOLOGY.CARDS[1].title} 
@@ -145,7 +157,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, language }
                 <BrutalData />
               </BrutalCard>
             </div>
-            <div onClick={() => onNavigate('papers', '质量评价与资源')} className="md:col-span-3 cursor-pointer">
+            <div onClick={() => onNavigate('papers', '现代技术与安全性')} className="md:col-span-3 cursor-pointer">
               <BrutalCard 
                 index={2}
                 title={t.METHODOLOGY.CARDS[2].title} 
@@ -166,14 +178,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, language }
             <div className="h-px flex-1 bg-black/10"></div>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              { icon: <BrutalHistory />, title: "品种、历史", cat: "品种、历史与感官基础" },
-              { icon: <BrutalProcess />, title: "炮制工艺", cat: "炮制工艺与化学成分转化" },
-              { icon: <BrutalMetabolism />, title: "肠道健康", cat: "肠道健康与微环境调节" },
-              { icon: <BrutalMetabolism />, title: "代谢保护", cat: "肝脏保护、降糖与代谢" },
-              { icon: <BrutalScience />, title: "脑健康", cat: "脑健康、神经保护与综合应用" },
-              { icon: <BrutalShield />, title: "安全性", cat: "安全性与质量控制" },
-            ].map((item, i) => (
+            {faqCategories.map((item, i) => (
               <motion.div 
                 key={i}
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -237,10 +242,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, language }
                 </p>
                 <button 
                   onClick={() => {
-                    if (i === 0) onNavigate('papers', '质量评价与资源');
+                    if (i === 0) onNavigate('papers', '现代技术与安全性');
                     else if (i === 1) onNavigate('faq', '肠道健康与微环境调节');
                     else if (i === 2) onNavigate('faq', '炮制工艺与化学成分转化');
-                    else onNavigate('faq', '脑健康、神经保护与综合应用');
+                    else onNavigate('faq', '安全性与质量控制');
                   }}
                   className="text-sm font-bold uppercase tracking-widest flex items-center gap-2 hover:gap-4 transition-all text-[var(--color-neon-orange)]"
                 >
@@ -494,7 +499,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, language }
             >
               <div className="inline-block font-mono text-[var(--color-neon-orange)] mb-6 tracking-[0.5em] uppercase">{t.FOOTER.SERIES_COLLECTION}</div>
               <h2 className="text-8xl md:text-9xl font-display font-bold uppercase tracking-tighter mb-10 leading-[0.8]">
-                {APP_CONFIG.SERIES_NAME}
+                {t.FOOTER.SERIES_NAME}
               </h2>
               <p className="text-2xl font-bold opacity-60 max-w-xl leading-relaxed italic">
                 {t.FOOTER.DESC}
@@ -528,7 +533,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, language }
             <div className="h-px flex-1 bg-white/10 mx-12"></div>
             <span className="font-mono text-xs opacity-40">v1.0.42</span>
           </div>
-          <HerbGrid />
+          <HerbGrid language={language} />
         </div>
       </section>
     </div>

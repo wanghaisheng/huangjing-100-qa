@@ -1,7 +1,9 @@
+export type I18nString = string | { zh: string; en: string };
+
 export interface FAQItem {
-  question: { zh: string; en: string };
-  answer: { zh: string; en: string };
-  category: { zh: string; en: string };
+  question: I18nString;
+  answer: I18nString;
+  category: I18nString;
 }
 
 export const FAQ_DATA: FAQItem[] = [

@@ -52,38 +52,6 @@ export const Header: React.FC<HeaderProps> = ({ onLogoClick, onTabChange, active
             >
               {t.TABS.FULL_DB}
             </button>
-            <button
-              onClick={() => onTabChange('about')}
-              className={`px-4 py-2 text-sm md:px-6 md:py-3 md:text-base font-bold uppercase tracking-widest brutal-border transition-all ${
-                !showLanding && activeTab === 'about' ? 'bg-[var(--color-neon-orange)] text-white brutal-shadow' : 'bg-white hover:bg-slate-100'
-              }`}
-            >
-              {t.TABS.ABOUT}
-            </button>
-            <button
-              onClick={() => onTabChange('data_source')}
-              className={`px-4 py-2 text-sm md:px-6 md:py-3 md:text-base font-bold uppercase tracking-widest brutal-border transition-all ${
-                !showLanding && activeTab === 'data_source' ? 'bg-[var(--color-neon-orange)] text-white brutal-shadow' : 'bg-white hover:bg-slate-100'
-              }`}
-            >
-              {t.TABS.DATA_SOURCE}
-            </button>
-            <button
-              onClick={() => onTabChange('contact')}
-              className={`px-4 py-2 text-sm md:px-6 md:py-3 md:text-base font-bold uppercase tracking-widest brutal-border transition-all ${
-                !showLanding && activeTab === 'contact' ? 'bg-[var(--color-neon-orange)] text-white brutal-shadow' : 'bg-white hover:bg-slate-100'
-              }`}
-            >
-              {t.TABS.CONTACT}
-            </button>
-            <button
-              onClick={() => onTabChange('admin')}
-              className={`px-4 py-2 text-sm md:px-6 md:py-3 md:text-base font-bold uppercase tracking-widest brutal-border transition-all ${
-                !showLanding && activeTab === 'admin' ? 'bg-[var(--color-neon-orange)] text-white brutal-shadow' : 'bg-white hover:bg-slate-100'
-              }`}
-            >
-              Admin
-            </button>
           </nav>
         </div>
       </div>

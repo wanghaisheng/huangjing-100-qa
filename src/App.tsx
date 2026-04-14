@@ -14,11 +14,13 @@ import { AboutProject } from './components/AboutProject';
 import { DataSource } from './components/DataSource';
 import { Contact } from './components/Contact';
 import { AdminPage } from './components/AdminPage';
+import { PrivacyPolicy } from './components/PrivacyPolicy';
+import { TermsOfUse } from './components/TermsOfUse';
 import { Language } from './i18n/config';
 
 export default function App() {
   const [showLanding, setShowLanding] = useState(true);
-  const [activeTab, setActiveTab] = useState<'papers' | 'faq' | 'full_database' | 'about' | 'data_source' | 'contact' | 'admin'>('papers');
+  const [activeTab, setActiveTab] = useState<'papers' | 'faq' | 'full_database' | 'about' | 'data_source' | 'contact' | 'admin' | 'privacy' | 'terms'>('papers');
   const [language, setLanguage] = useState<Language>('zh');
   const t = PAGES_STRINGS[language];
   const [searchQuery, setSearchQuery] = useState('');
@@ -56,10 +58,18 @@ export default function App() {
     initDB();
   }, [papers, faqData]);
 
-  const getString = (val: any) => {
+  const getString = (val: any, lang: Language = language) => {
     if (typeof val === 'string') return val;
     if (val && typeof val === 'object') {
-      return val[language] || val.zh || val.en || '';
+      return val[lang] || val.zh || val.en || '';
+    }
+    return '';
+  };
+
+  const getZhString = (val: any) => {
+    if (typeof val === 'string') return val;
+    if (val && typeof val === 'object') {
+      return val.zh || val.en || '';
     }
     return '';
   };
@@ -69,12 +79,12 @@ export default function App() {
       const titleStr = getString(paper.title);
       const sourceStr = getString(paper.source);
       const sigStr = getString(paper.significance);
-      const catStr = getString(paper.category);
+      const catZh = getZhString(paper.category);
 
       const matchesSearch = titleStr.toLowerCase().includes(searchQuery.toLowerCase()) ||
                             sourceStr.toLowerCase().includes(searchQuery.toLowerCase()) ||
                             sigStr.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesCategory = selectedCategory ? catStr === selectedCategory : true;
+      const matchesCategory = selectedCategory ? catZh === selectedCategory : true;
       return matchesSearch && matchesCategory;
     });
   }, [papers, searchQuery, selectedCategory, language]);
@@ -83,16 +93,16 @@ export default function App() {
     return faqData.filter(item => {
       const qStr = getString(item.question);
       const aStr = getString(item.answer);
-      const catStr = getString(item.category);
+      const catZh = getZhString(item.category);
 
       const matchesSearch = qStr.toLowerCase().includes(searchQuery.toLowerCase()) ||
                             aStr.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesCategory = selectedFaqCategory ? catStr === selectedFaqCategory : true;
+      const matchesCategory = selectedFaqCategory ? catZh === selectedFaqCategory : true;
       return matchesSearch && matchesCategory;
     });
   }, [faqData, searchQuery, selectedFaqCategory, language]);
 
-  const handleTabChange = (tab: 'papers' | 'faq' | 'full_database' | 'about' | 'data_source' | 'contact', category?: string) => {
+  const handleTabChange = (tab: 'papers' | 'faq' | 'full_database' | 'about' | 'data_source' | 'contact' | 'admin' | 'privacy' | 'terms', category?: string) => {
     setActiveTab(tab);
     setShowLanding(false);
     if (category) {
@@ -210,20 +220,21 @@ export default function App() {
                         </span>
                       </button>
                       {categories.map((catObj) => {
-                        const cat = getString(catObj);
-                        const count = papers.filter(p => getString(p.category) === cat).length;
+                        const catZh = getZhString(catObj);
+                        const catDisplay = getString(catObj);
+                        const count = papers.filter(p => getZhString(p.category) === catZh).length;
                         return (
                           <button
-                            key={cat}
-                            onClick={() => setSelectedCategory(cat)}
+                            key={catZh}
+                            onClick={() => setSelectedCategory(catZh)}
                             className={`px-4 py-3 font-bold text-sm transition-all text-left flex items-center justify-between brutal-border ${
-                              selectedCategory === cat 
+                              selectedCategory === catZh 
                                 ? 'bg-[var(--color-brutal-black)] text-white brutal-shadow' 
                                 : 'bg-[var(--color-gallery-white)] text-slate-600 hover:bg-slate-50'
                             }`}
                           >
-                            <span className="truncate mr-2">{cat}</span>
-                            <span className={`text-xs px-2 py-1 brutal-border flex-shrink-0 ${selectedCategory === cat ? 'bg-[var(--color-gallery-white)] text-black' : 'bg-slate-100 text-slate-500'}`}>
+                            <span className="truncate mr-2">{catDisplay}</span>
+                            <span className={`text-xs px-2 py-1 brutal-border flex-shrink-0 ${selectedCategory === catZh ? 'bg-[var(--color-gallery-white)] text-black' : 'bg-slate-100 text-slate-500'}`}>
                               {count}
                             </span>
                           </button>
@@ -325,19 +336,23 @@ export default function App() {
                   >
                     {t.APP.ALL_QUESTIONS}
                   </button>
-                  {faqCategories.map(cat => (
-                    <button
-                      key={cat}
-                      onClick={() => {setSelectedFaqCategory(cat); setExpandedFaq(null);}}
-                      className={`px-6 py-3 font-bold text-xs uppercase tracking-widest transition-all brutal-border ${
-                        selectedFaqCategory === cat 
-                          ? 'bg-[var(--color-brutal-black)] text-white brutal-shadow' 
-                          : 'bg-[var(--color-gallery-white)] text-slate-500 hover:bg-slate-50'
-                      }`}
-                    >
-                      {cat}
-                    </button>
-                  ))}
+                  {faqCategories.map(catObj => {
+                    const catZh = getZhString(catObj);
+                    const catDisplay = getString(catObj);
+                    return (
+                      <button
+                        key={catZh}
+                        onClick={() => {setSelectedFaqCategory(catZh); setExpandedFaq(null);}}
+                        className={`px-6 py-3 font-bold text-xs uppercase tracking-widest transition-all brutal-border ${
+                          selectedFaqCategory === catZh 
+                            ? 'bg-[var(--color-brutal-black)] text-white brutal-shadow' 
+                            : 'bg-[var(--color-gallery-white)] text-slate-500 hover:bg-slate-50'
+                        }`}
+                      >
+                        {catDisplay}
+                      </button>
+                    );
+                  })}
                 </div>
 
                 <div className="space-y-6">
@@ -486,6 +501,10 @@ export default function App() {
               <Contact language={language} />
             ) : activeTab === 'admin' ? (
               <AdminPage language={language} />
+            ) : activeTab === 'privacy' ? (
+              <PrivacyPolicy language={language} />
+            ) : activeTab === 'terms' ? (
+              <TermsOfUse language={language} />
             ) : null}
 
           </div>

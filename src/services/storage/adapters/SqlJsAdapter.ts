@@ -18,22 +18,51 @@ export class SqlJsAdapter implements StorageAdapter {
 
   async create(collection: string, data: any) {
     const db = await this.ensureDb();
+    
+    // Create table if not exists (simple heuristic based on first row)
+    const columnsDef = Object.keys(data).map(k => `${k} TEXT`).join(', ');
+    db.run(`CREATE TABLE IF NOT EXISTS ${collection} (${columnsDef})`);
+
     const columns = Object.keys(data).join(', ');
-    const values = Object.values(data).map(v => typeof v === 'string' ? `'${v}'` : v).join(', ');
+    const values = Object.values(data).map(v => {
+      if (typeof v === 'object') return `'${JSON.stringify(v).replace(/'/g, "''")}'`;
+      if (typeof v === 'string') return `'${v.replace(/'/g, "''")}'`;
+      return v;
+    }).join(', ');
     db.run(`INSERT INTO ${collection} (${columns}) VALUES (${values})`);
     return data;
   }
 
   async read(collection: string, id: string) {
     const db = await this.ensureDb();
-    const result = db.exec(`SELECT * FROM ${collection} WHERE id = '${id}'`);
-    if (result.length === 0) return null;
-    return result[0].values[0];
+    try {
+      const result = db.exec(`SELECT * FROM ${collection} WHERE id = '${id}'`);
+      if (result.length === 0) return null;
+      
+      // Map columns to values
+      const columns = result[0].columns;
+      const values = result[0].values[0];
+      const row: any = {};
+      columns.forEach((col, i) => {
+        try {
+          row[col] = JSON.parse(values[i] as string);
+        } catch {
+          row[col] = values[i];
+        }
+      });
+      return row;
+    } catch {
+      return null;
+    }
   }
 
   async update(collection: string, id: string, data: any) {
     const db = await this.ensureDb();
-    const setClause = Object.entries(data).map(([k, v]) => `${k} = ${typeof v === 'string' ? `'${v}'` : v}`).join(', ');
+    const setClause = Object.entries(data).map(([k, v]) => {
+      if (typeof v === 'object') return `${k} = '${JSON.stringify(v).replace(/'/g, "''")}'`;
+      if (typeof v === 'string') return `${k} = '${v.replace(/'/g, "''")}'`;
+      return `${k} = ${v}`;
+    }).join(', ');
     db.run(`UPDATE ${collection} SET ${setClause} WHERE id = '${id}'`);
     return data;
   }

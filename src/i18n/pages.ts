@@ -61,6 +61,14 @@ export const PAGES_STRINGS = {
     },
     FAQ_OVERVIEW: {
       SECTION_ID: '02 // FAQ Overview',
+      CATEGORIES: [
+        { title: 'Varieties & History', cat: '品种、历史与感官基础' },
+        { title: 'Processing', cat: '炮制工艺与化学成分转化' },
+        { title: 'Intestinal Health', cat: '肠道健康与微环境调节' },
+        { title: 'Metabolic Protection', cat: '肝脏保护、降糖与代谢' },
+        { title: 'Brain Health', cat: '脑健康、神经保护与综合应用' },
+        { title: 'Safety', cat: '安全性与质量控制' },
+      ]
     },
     CONCERNS: {
       SECTION_ID: '03 // Core Concerns & Scientific Answers',
@@ -129,11 +137,17 @@ export const PAGES_STRINGS = {
       TOTAL_RECORDS: '{total} records in total'
     },
     FOOTER: {
+      COPYRIGHT: `© ${new Date().getFullYear()} HeyTCM. All rights reserved.`,
+      PRIVACY_POLICY: 'Privacy Policy',
+      TERMS_OF_USE: 'Terms of Use',
+      LANGUAGE_ZH: 'ZH',
+      LANGUAGE_EN: 'EN',
       DESC: 'This platform aims to provide convenient literature indexing services for researchers and enthusiasts. All data is sourced from publicly available academic resources.',
       SERIES_TITLE: 'Full Series 110+ Chapters',
       SERIES_COLLECTION: 'SERIES COLLECTION',
       CHAPTERS: 'CHAPTERS',
       DB_INDEX_FULL: 'DATABASE INDEX // FULL ACCESS',
+      SERIES_NAME: 'Medicinal & Edible Homology Series',
       LINKS: [
         { label: 'About Project', href: '#' },
         { label: 'Data Source', href: '#' },
@@ -163,6 +177,47 @@ export const PAGES_STRINGS = {
       FAQ_TITLE_EN: 'FAQ Title (EN)',
       DOWNLOAD_CONFIG: 'Download Config (siteConfig.ts)',
       CONFIG_INSTRUCTION: 'After downloading, replace the file at src/config/siteConfig.ts'
+    },
+    PRIVACY: {
+      TITLE: 'Privacy Policy',
+      CONTENT: `Last Updated: ${new Date().toLocaleDateString()}
+
+1. Information Collection
+We do not collect any personal information. All data processing (such as search queries) is done locally on your device using DuckDB.
+
+2. Cookies and Tracking
+We do not use tracking cookies or third-party analytics that compromise your privacy.
+
+3. Data Security
+Since no personal data is transmitted to our servers, your usage remains completely private and secure on your local device.
+
+4. Changes to This Policy
+We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page.
+
+5. Contact Us
+If you have any questions about this Privacy Policy, please contact us at support@heytcm.com.`
+    },
+    TERMS: {
+      TITLE: 'Terms of Use',
+      CONTENT: `Last Updated: ${new Date().toLocaleDateString()}
+
+1. Acceptance of Terms
+By accessing and using this website, you accept and agree to be bound by the terms and provision of this agreement.
+
+2. Educational Purposes Only
+The content on this platform is provided for educational and research purposes only. It is not intended to be a substitute for professional medical advice, diagnosis, or treatment.
+
+3. Intellectual Property
+The content, layout, design, data, databases and graphics on this website are protected by intellectual property laws and are owned by HeyTCM or its licensors.
+
+4. Disclaimer of Warranties
+This website is provided "as is" without any representations or warranties, express or implied.
+
+5. Limitation of Liability
+HeyTCM will not be liable to you in relation to the contents of, or use of, or otherwise in connection with, this website.
+
+6. Contact Us
+If you have any questions about these Terms, please contact us at support@heytcm.com.`
     }
   },
   zh: {
@@ -225,6 +280,14 @@ export const PAGES_STRINGS = {
     },
     FAQ_OVERVIEW: {
       SECTION_ID: '02 // 百问百答概览',
+      CATEGORIES: [
+        { title: '品种、历史', cat: '品种、历史与感官基础' },
+        { title: '炮制工艺', cat: '炮制工艺与化学成分转化' },
+        { title: '肠道健康', cat: '肠道健康与微环境调节' },
+        { title: '代谢保护', cat: '肝脏保护、降糖与代谢' },
+        { title: '脑健康', cat: '脑健康、神经保护与综合应用' },
+        { title: '安全性', cat: '安全性与质量控制' },
+      ]
     },
     CONCERNS: {
       SECTION_ID: '03 // 核心关切与科学解答',
@@ -258,26 +321,26 @@ export const PAGES_STRINGS = {
       TITLE: '随机灵感瓶',
       DESC: '摇动左侧的灵感瓶\n随机获取一篇深度研究文献',
       CTA: '摇出一篇文献',
-      CLICK_PROMPT: 'Click to Shake',
-      LOADING: 'Mixing data...',
-      LUCKY_PICK: 'Lucky Pick',
+      CLICK_PROMPT: '点击摇动',
+      LOADING: '正在混合数据...',
+      LUCKY_PICK: '幸运抽取',
       READ_MORE: '查看详情'
     },
     APP: {
       SEARCH_PLACEHOLDER: '搜索文献或问题...',
-      DUCKDB_ACTIVE: 'DuckDB WASM Active',
+      DUCKDB_ACTIVE: 'DuckDB WASM 已启动',
       FILTER_TITLE: '研究领域分类',
       ALL_PAPERS: '全部文献',
-      ITEMS_SUFFIX: 'ITEMS',
-      READ_MORE: 'READ MORE',
-      NO_RESULTS: 'NO RESULTS FOUND',
-      TRY_DIFFERENT: 'TRY DIFFERENT KEYWORDS OR CATEGORIES',
+      ITEMS_SUFFIX: '条记录',
+      READ_MORE: '阅读更多',
+      NO_RESULTS: '未找到结果',
+      TRY_DIFFERENT: '尝试不同的关键词或分类',
       FAQ_TITLE: SITE_CONFIG.faqTitleZh,
-      FAQ_SUBTITLE: 'BASED ON LATEST SCIENTIFIC RESEARCH',
+      FAQ_SUBTITLE: '基于最新科学研究',
       ALL_QUESTIONS: '全部问题',
       FULL_DB_TITLE: '全量文献大库',
-      FULL_DB_SUBTITLE: '1100+ SCIENTIFIC PAPERS & THESES',
-      QUERYING: 'Querying DuckDB...',
+      FULL_DB_SUBTITLE: '1100+ 篇学术论文与研究',
+      QUERYING: '正在查询 DuckDB...',
       TABLE_HEADERS: {
         YEAR: '年度',
         TITLE: '中文题名',
@@ -285,24 +348,71 @@ export const PAGES_STRINGS = {
         INSTITUTION: '单位',
         DATABASE: '库'
       },
-      NO_DB_RESULTS: 'No results found in DuckDB',
-      POWERED_BY: 'Powered by DuckDB-Wasm',
+      NO_DB_RESULTS: 'DuckDB 中未找到结果',
+      POWERED_BY: '由 DuckDB-Wasm 驱动',
       PREV_PAGE: '上一页',
       NEXT_PAGE: '下一页',
       PAGE_INFO: '第 {current} 页 / 共 {total} 页',
       TOTAL_RECORDS: '共 {total} 条记录'
     },
     FOOTER: {
+      COPYRIGHT: `© ${new Date().getFullYear()} HeyTCM. 保留所有权利。`,
+      PRIVACY_POLICY: '隐私政策',
+      TERMS_OF_USE: '使用条款',
+      LANGUAGE_ZH: '中文',
+      LANGUAGE_EN: '英文',
       DESC: '本平台旨在为研究人员及爱好者提供便捷的文献索引服务。所有数据均来源于公开学术资源。',
       SERIES_TITLE: '全系列 110+ 章节',
       SERIES_COLLECTION: 'SERIES COLLECTION',
       CHAPTERS: 'CHAPTERS',
       DB_INDEX_FULL: 'DATABASE INDEX // FULL ACCESS',
+      SERIES_NAME: '药食同源百问百答系列',
       LINKS: [
-        { label: 'About Project', href: '#' },
-        { label: 'Data Source', href: '#' },
-        { label: 'Contact', href: '#' },
+        { label: '关于项目', href: '#' },
+        { label: '数据来源', href: '#' },
+        { label: '联系我们', href: '#' },
       ]
+    },
+    PRIVACY: {
+      TITLE: '隐私政策',
+      CONTENT: `最后更新日期：${new Date().toLocaleDateString()}
+
+1. 信息收集
+我们不收集任何个人信息。所有数据处理（如搜索查询）均使用 DuckDB 在您的设备本地完成。
+
+2. Cookie 和追踪
+我们不使用任何侵犯您隐私的追踪 Cookie 或第三方分析工具。
+
+3. 数据安全
+由于没有个人数据传输到我们的服务器，您的使用在本地设备上保持完全私密和安全。
+
+4. 政策变更
+我们可能会不时更新本隐私政策。如有任何更改，我们将通过在此页面发布新的隐私政策来通知您。
+
+5. 联系我们
+如果您对本隐私政策有任何疑问，请联系我们：support@heytcm.com。`
+    },
+    TERMS: {
+      TITLE: '使用条款',
+      CONTENT: `最后更新日期：${new Date().toLocaleDateString()}
+
+1. 接受条款
+通过访问和使用本网站，您接受并同意受本协议的条款和规定的约束。
+
+2. 仅限教育目的
+本平台提供的内容仅供教育和研究目的使用。它不能替代专业的医疗建议、诊断或治疗。
+
+3. 知识产权
+本网站上的内容、布局、设计、数据、数据库和图形受知识产权法保护，归 HeyTCM 或其许可方所有。
+
+4. 免责声明
+本网站按“原样”提供，不提供任何明示或暗示的陈述或保证。
+
+5. 责任限制
+HeyTCM 不对您因本网站内容、使用或与本网站相关的其他方面而承担任何责任。
+
+6. 联系我们
+如果您对这些条款有任何疑问，请联系我们：support@heytcm.com。`
     },
     ADMIN: {
       TITLE: '数据管理 (Admin)',

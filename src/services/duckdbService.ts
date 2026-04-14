@@ -18,6 +18,8 @@ const DUCKDB_BUNDLES: duckdb.DuckDBBundles = {
 let db: duckdb.AsyncDuckDB | null = null;
 let conn: duckdb.AsyncDuckDBConnection | null = null;
 let initPromise: Promise<void> | null = null;
+const loadedTables = new Set<string>();
+const loadingPromises = new Map<string, Promise<void>>();
 
 export const DuckDBService = {
   init: async () => {
@@ -49,17 +51,32 @@ export const DuckDBService = {
   },
 
   loadData: async (tableName: string, data: any[]) => {
-    await DuckDBService.init();
-    if (!db || !conn) throw new Error('DuckDB not initialized');
+    if (loadedTables.has(tableName)) return;
+    if (loadingPromises.has(tableName)) return loadingPromises.get(tableName);
 
-    // Drop table if it exists to avoid "Table already exists" error
-    await conn.query(`DROP TABLE IF EXISTS ${tableName}`);
+    const promise = (async () => {
+      await DuckDBService.init();
+      if (!db || !conn) throw new Error('DuckDB not initialized');
 
-    // Convert data to JSON and load into DuckDB
-    const jsonStr = JSON.stringify(data);
-    await db.registerFileText(`${tableName}.json`, jsonStr);
-    await conn.insertJSONFromPath(`${tableName}.json`, { name: tableName });
-    console.log(`Data loaded into table: ${tableName}`);
+      try {
+        // Drop table if it exists to avoid "Table already exists" error
+        await conn.query(`DROP TABLE IF EXISTS ${tableName}`);
+
+        // Convert data to JSON and load into DuckDB
+        const jsonStr = JSON.stringify(data);
+        await db.registerFileText(`${tableName}.json`, jsonStr);
+        await conn.insertJSONFromPath(`${tableName}.json`, { name: tableName });
+        loadedTables.add(tableName);
+        console.log(`Data loaded into table: ${tableName}`);
+      } catch (e) {
+        console.error(`Error loading data into ${tableName}:`, e);
+      } finally {
+        loadingPromises.delete(tableName);
+      }
+    })();
+    
+    loadingPromises.set(tableName, promise);
+    return promise;
   },
 
   loadCSV: async (tableName: string, csvPath: string) => {
@@ -74,14 +91,29 @@ export const DuckDBService = {
   },
 
   loadCSVText: async (tableName: string, csvText: string) => {
-    await DuckDBService.init();
-    if (!db || !conn) throw new Error('DuckDB not initialized');
+    if (loadedTables.has(tableName)) return;
+    if (loadingPromises.has(tableName)) return loadingPromises.get(tableName);
 
-    await db.registerFileText(`${tableName}.csv`, csvText);
-    
-    // Use read_csv_auto to create the table
-    await conn.query(`CREATE TABLE IF NOT EXISTS ${tableName} AS SELECT * FROM read_csv_auto('${tableName}.csv')`);
-    console.log(`CSV text loaded into table: ${tableName}`);
+    const promise = (async () => {
+      await DuckDBService.init();
+      if (!db || !conn) throw new Error('DuckDB not initialized');
+
+      try {
+        await db.registerFileText(`${tableName}.csv`, csvText);
+        
+        // Use read_csv_auto to create the table
+        await conn.query(`CREATE TABLE IF NOT EXISTS ${tableName} AS SELECT * FROM read_csv_auto('${tableName}.csv')`);
+        loadedTables.add(tableName);
+        console.log(`CSV text loaded into table: ${tableName}`);
+      } catch (e) {
+        console.error(`Error loading CSV text into ${tableName}:`, e);
+      } finally {
+        loadingPromises.delete(tableName);
+      }
+    })();
+
+    loadingPromises.set(tableName, promise);
+    return promise;
   },
 
   query: async (sql: string) => {

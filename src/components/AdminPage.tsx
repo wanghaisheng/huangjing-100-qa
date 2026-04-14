@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { DuckDBService } from '../services/duckdbService';
+import { getStorage } from '../services/storage';
 import { PAGES_STRINGS } from '../i18n/pages';
 import { Language } from '../i18n/config';
 import { SITE_CONFIG } from '../config/siteConfig';
@@ -11,7 +12,7 @@ export const AdminPage = ({ language }: { language: Language }) => {
   // CSV to SQL State
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [tableName, setTableName] = useState('papers');
-  const [sql, setSql] = useState('');
+  const [processedData, setProcessedData] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -39,21 +40,20 @@ export const AdminPage = ({ language }: { language: Language }) => {
       }
       const genAI = new GoogleGenerativeAI(apiKey);
       const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-      const prompt = `You are a data conversion assistant. Convert the following CSV data into valid SQL INSERT statements for DuckDB.
-      The table name is "${tableName}".
-      Return ONLY the raw SQL statements. Do NOT wrap them in markdown code blocks (like \`\`\`sql).
+      const prompt = `You are a data conversion assistant. Convert the following CSV data into a JSON array of objects.
+      Return ONLY the raw JSON array. Do NOT wrap it in markdown code blocks (like \`\`\`json).
       CSV Data:
       ${text}`;
 
       const result = await model.generateContent(prompt);
-      let generatedSql = result.response.text().trim();
+      let generatedJson = result.response.text().trim();
       // Clean up markdown if model still adds it
-      if (generatedSql.startsWith('\`\`\`sql')) {
-        generatedSql = generatedSql.replace(/^\`\`\`sql\n/, '').replace(/\n\`\`\`$/, '');
-      } else if (generatedSql.startsWith('\`\`\`')) {
-        generatedSql = generatedSql.replace(/^\`\`\`\n/, '').replace(/\n\`\`\`$/, '');
+      if (generatedJson.startsWith('```json')) {
+        generatedJson = generatedJson.replace(/^```json\n/, '').replace(/\n```$/, '');
+      } else if (generatedJson.startsWith('```')) {
+        generatedJson = generatedJson.replace(/^```\n/, '').replace(/\n```$/, '');
       }
-      setSql(generatedSql);
+      setProcessedData(generatedJson);
       setMessage(t.SUCCESS);
     } catch (err: any) {
       console.error(err);
@@ -64,12 +64,21 @@ export const AdminPage = ({ language }: { language: Language }) => {
   };
 
   const handleExecute = async () => {
-    if (!sql) return;
+    if (!processedData) return;
     setIsProcessing(true);
     setMessage('');
     try {
-      await DuckDBService.init();
-      await DuckDBService.query(sql);
+      const data = JSON.parse(processedData);
+      if (!Array.isArray(data)) {
+        throw new Error('Processed data is not a JSON array');
+      }
+      const storage = getStorage();
+      for (const item of data) {
+        if (!item.id) {
+          item.id = crypto.randomUUID();
+        }
+        await storage.create(tableName, item);
+      }
       setMessage(t.SUCCESS);
     } catch (err: any) {
       console.error(err);
@@ -80,11 +89,11 @@ export const AdminPage = ({ language }: { language: Language }) => {
   };
 
   const handleDownload = () => {
-    const blob = new Blob([sql], { type: 'text/sql' });
+    const blob = new Blob([processedData], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${tableName}_data.sql`;
+    a.download = `${tableName}_data.json`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -115,6 +124,26 @@ export const AdminPage = ({ language }: { language: Language }) => {
 
   const handleConfigChange = (key: keyof typeof SITE_CONFIG, value: any) => {
     setSiteConfig(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handleSaveConfigToDB = async () => {
+    setIsProcessing(true);
+    setMessage('');
+    try {
+      const storage = getStorage();
+      try {
+        await storage.read('site_config', 'default');
+        await storage.update('site_config', 'default', siteConfig);
+      } catch (e) {
+        await storage.create('site_config', { id: 'default', ...siteConfig });
+      }
+      setMessage(t.SUCCESS || 'Saved successfully');
+    } catch (err: any) {
+      console.error(err);
+      setMessage(`${t.ERROR || 'Error'}: ${err.message}`);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -162,12 +191,12 @@ export const AdminPage = ({ language }: { language: Language }) => {
           </div>
         )}
 
-        {sql && (
+        {processedData && (
           <div className="space-y-4 mt-8">
-            <h3 className="text-2xl font-display uppercase">{t.GENERATED_SQL}</h3>
+            <h3 className="text-2xl font-display uppercase">{t.GENERATED_SQL || 'Generated Data'}</h3>
             <textarea
-              value={sql}
-              onChange={(e) => setSql(e.target.value)}
+              value={processedData}
+              onChange={(e) => setProcessedData(e.target.value)}
               className="w-full h-64 p-4 font-mono text-sm brutal-border focus:outline-none focus:ring-2 focus:ring-[var(--color-neon-orange)]"
             />
             <div className="flex space-x-4">
@@ -176,13 +205,13 @@ export const AdminPage = ({ language }: { language: Language }) => {
                 disabled={isProcessing}
                 className="px-6 py-3 bg-black text-white font-bold uppercase tracking-widest brutal-border hover:bg-[var(--color-neon-orange)] brutal-shadow transition-all"
               >
-                {t.EXECUTE_SQL}
+                {t.EXECUTE_SQL || 'Save to DB'}
               </button>
               <button
                 onClick={handleDownload}
                 className="px-6 py-3 bg-white text-black font-bold uppercase tracking-widest brutal-border hover:bg-slate-100 brutal-shadow transition-all"
               >
-                {t.DOWNLOAD_SQL}
+                {t.DOWNLOAD_SQL || 'Download JSON'}
               </button>
             </div>
           </div>
@@ -309,12 +338,25 @@ export const AdminPage = ({ language }: { language: Language }) => {
 
           <div className="pt-6 border-t-2 border-[var(--color-brutal-black)]">
             <p className="text-sm text-slate-500 mb-4">{t.CONFIG_INSTRUCTION}</p>
-            <button
-              onClick={handleDownloadConfig}
-              className="px-6 py-3 bg-[var(--color-neon-orange)] text-white font-bold uppercase tracking-widest brutal-border hover:bg-black brutal-shadow transition-all"
-            >
-              {t.DOWNLOAD_CONFIG}
-            </button>
+            <div className="flex gap-4">
+              <button
+                onClick={handleSaveConfigToDB}
+                disabled={isProcessing}
+                className={`px-6 py-3 font-bold uppercase tracking-widest brutal-border transition-all ${
+                  isProcessing 
+                    ? 'bg-slate-200 text-slate-400 cursor-not-allowed' 
+                    : 'bg-[var(--color-brutal-black)] text-white hover:bg-black brutal-shadow'
+                }`}
+              >
+                {isProcessing ? t.PROCESSING : 'Save to DB'}
+              </button>
+              <button
+                onClick={handleDownloadConfig}
+                className="px-6 py-3 bg-[var(--color-neon-orange)] text-white font-bold uppercase tracking-widest brutal-border hover:bg-black brutal-shadow transition-all"
+              >
+                {t.DOWNLOAD_CONFIG}
+              </button>
+            </div>
           </div>
         </div>
       </div>

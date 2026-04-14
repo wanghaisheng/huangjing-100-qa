@@ -32,7 +32,16 @@ export const DataService = {
   getFaqData: (): FaqItem[] => {
     return FAQ_DATA as any;
   },
-  getFaqCategories: (): string[] => {
-    return Array.from(new Set(FAQ_DATA.map(item => typeof item.category === 'string' ? item.category : (item.category as any).zh)));
+  getFaqCategories: (): (string | I18nString)[] => {
+    const seen = new Set<string>();
+    const unique: (string | I18nString)[] = [];
+    FAQ_DATA.forEach(item => {
+      const zh = typeof item.category === 'string' ? item.category : item.category.zh;
+      if (!seen.has(zh)) {
+        seen.add(zh);
+        unique.push(item.category);
+      }
+    });
+    return unique;
   }
 };

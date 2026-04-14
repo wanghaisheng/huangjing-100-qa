@@ -12,11 +12,7 @@ export class SupabaseAdapter implements StorageAdapter {
       throw new Error('Supabase configuration is missing');
     }
 
-    this.client = createClient(supabaseUrl, supabaseKey, {
-      global: {
-        fetch: fetch,
-      },
-    });
+    this.client = createClient(supabaseUrl, supabaseKey);
   }
 
   async create(collection: string, data: any) {
