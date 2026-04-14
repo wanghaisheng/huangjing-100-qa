@@ -52,6 +52,9 @@ export const DuckDBService = {
     await DuckDBService.init();
     if (!db || !conn) throw new Error('DuckDB not initialized');
 
+    // Drop table if it exists to avoid "Table already exists" error
+    await conn.query(`DROP TABLE IF EXISTS ${tableName}`);
+
     // Convert data to JSON and load into DuckDB
     const jsonStr = JSON.stringify(data);
     await db.registerFileText(`${tableName}.json`, jsonStr);

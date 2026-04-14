@@ -1,9 +1,11 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { BrutalScience, BrutalData, BrutalShield, BrutalHistory, BrutalProcess, BrutalMetabolism, BrutalPlant, BrutalBottle } from './BrutalArt';
-import { STRINGS, APP_CONFIG, HERBS_LIST } from '../constants/config';
+import { PAGES_STRINGS } from '../i18n/pages';
+import { Language } from '../i18n/config';
+import { APP_CONFIG, HERBS_LIST } from '../constants/config';
 import { DataService } from '../services/dataService';
-import { BookOpen, GraduationCap, Calendar, RefreshCw } from 'lucide-react';
+import { BookOpen, GraduationCap, RefreshCw } from 'lucide-react';
 
 const HerbGrid = () => (
   <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-8 lg:grid-cols-10 gap-px bg-[var(--color-brutal-black)] border-2 border-[var(--color-brutal-black)]">
@@ -33,7 +35,8 @@ const HerbGrid = () => (
 );
 
 interface LandingPageProps {
-  onNavigate: (tab: 'papers' | 'faq', category?: string) => void;
+  onNavigate: (tab: 'papers' | 'faq' | 'full_database' | 'about' | 'data_source' | 'contact', category?: string) => void;
+  language: Language;
 }
 
 const BrutalCard = ({ title, description, children, className = "", index = 0 }: { title: string, description: string, children: React.ReactNode, className?: string, index?: number }) => (
@@ -49,7 +52,8 @@ const BrutalCard = ({ title, description, children, className = "", index = 0 }:
   </motion.div>
 );
 
-export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, language }) => {
+  const t = PAGES_STRINGS[language];
   const [isShaking, setIsShaking] = React.useState(false);
   const [randomPaper, setRandomPaper] = React.useState<any | null>(null);
 
@@ -84,31 +88,31 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
           <div className="inline-flex items-center gap-3 mb-8">
             <span className="w-12 h-px bg-[var(--color-brutal-black)]"></span>
             <span className="text-sm font-mono font-bold tracking-[0.3em] uppercase text-[var(--color-neon-orange)]">
-              {STRINGS.HERO.TAG}
+              {t.HERO.TAG}
             </span>
           </div>
           
           <h1 className="text-[12vw] md:text-[10vw] font-display font-bold mb-10 leading-[0.85] tracking-tighter uppercase">
-            {STRINGS.HERO.TITLE_1}<br />
-            <span className="ml-[10vw] text-[var(--color-neon-orange)]">{STRINGS.HERO.TITLE_2}</span>
+            {t.HERO.TITLE_1}<br />
+            <span className="ml-[10vw] text-[var(--color-neon-orange)]">{t.HERO.TITLE_2}</span>
           </h1>
           
           <div className="flex flex-col md:flex-row items-start gap-12 mt-16">
             <p className="text-2xl font-bold max-w-xl leading-tight">
-              {STRINGS.HERO.DESC}
+              {t.HERO.DESC}
             </p>
             <div className="flex flex-col gap-4 w-full md:w-auto">
               <button 
                 onClick={() => onNavigate('papers')}
                 className="px-12 py-6 bg-[var(--color-brutal-black)] text-white font-bold text-xl hover:bg-[var(--color-neon-orange)] transition-all brutal-shadow-orange active:translate-x-1 active:translate-y-1 active:shadow-none"
               >
-                {STRINGS.HERO.CTA_PAPERS}
+                {t.HERO.CTA_PAPERS}
               </button>
               <button 
                 onClick={() => onNavigate('faq')}
                 className="px-12 py-6 bg-[var(--color-gallery-white)] brutal-border font-bold text-xl hover:bg-[var(--color-neon-orange)] hover:text-white transition-all brutal-shadow active:translate-x-1 active:translate-y-1 active:shadow-none"
               >
-                {STRINGS.HERO.CTA_FAQ}
+                {t.HERO.CTA_FAQ}
               </button>
             </div>
           </div>
@@ -119,15 +123,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
       <section className="py-32 px-6 border-y-2 border-black">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center gap-4 mb-16">
-            <h2 className="text-sm font-mono font-bold tracking-widest uppercase bg-black text-white px-3 py-1">{STRINGS.METHODOLOGY.SECTION_ID}</h2>
+            <h2 className="text-sm font-mono font-bold tracking-widest uppercase bg-black text-white px-3 py-1">{t.METHODOLOGY.SECTION_ID}</h2>
             <div className="h-px flex-1 bg-black/10"></div>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             <div onClick={() => onNavigate('papers', '药理作用与机制')} className="md:col-span-2 cursor-pointer">
               <BrutalCard 
                 index={0}
-                title={STRINGS.METHODOLOGY.CARDS[0].title} 
-                description={STRINGS.METHODOLOGY.CARDS[0].desc}
+                title={t.METHODOLOGY.CARDS[0].title} 
+                description={t.METHODOLOGY.CARDS[0].desc}
               >
                 <BrutalScience />
               </BrutalCard>
@@ -135,8 +139,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
             <div onClick={() => onNavigate('papers', '炮制工艺研究')} className="md:col-span-1 cursor-pointer">
               <BrutalCard 
                 index={1}
-                title={STRINGS.METHODOLOGY.CARDS[1].title} 
-                description={STRINGS.METHODOLOGY.CARDS[1].desc}
+                title={t.METHODOLOGY.CARDS[1].title} 
+                description={t.METHODOLOGY.CARDS[1].desc}
               >
                 <BrutalData />
               </BrutalCard>
@@ -144,8 +148,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
             <div onClick={() => onNavigate('papers', '质量评价与资源')} className="md:col-span-3 cursor-pointer">
               <BrutalCard 
                 index={2}
-                title={STRINGS.METHODOLOGY.CARDS[2].title} 
-                description={STRINGS.METHODOLOGY.CARDS[2].desc}
+                title={t.METHODOLOGY.CARDS[2].title} 
+                description={t.METHODOLOGY.CARDS[2].desc}
               >
                 <BrutalShield />
               </BrutalCard>
@@ -158,7 +162,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
       <section className="py-32 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center gap-4 mb-16">
-            <h2 className="text-sm font-mono font-bold tracking-widest uppercase bg-black text-white px-3 py-1">{STRINGS.FAQ_OVERVIEW.SECTION_ID}</h2>
+            <h2 className="text-sm font-mono font-bold tracking-widest uppercase bg-black text-white px-3 py-1">{t.FAQ_OVERVIEW.SECTION_ID}</h2>
             <div className="h-px flex-1 bg-black/10"></div>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -197,18 +201,18 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
         <div className="max-w-6xl mx-auto relative z-10">
           <div className="mb-20">
             <h2 className="text-sm font-mono font-bold tracking-widest uppercase bg-[var(--color-gallery-white)] text-[var(--color-neon-orange)] inline-block px-3 py-1 mb-6">
-              {STRINGS.CONCERNS.SECTION_ID}
+              {t.CONCERNS.SECTION_ID}
             </h2>
             <h3 className="text-6xl md:text-7xl font-display uppercase tracking-tighter leading-none mb-8">
-              回应你的<br />核心疑虑
+              {language === 'zh' ? '回应你的\n核心疑虑' : 'Addressing Your\nCore Concerns'}
             </h3>
             <p className="text-xl font-bold opacity-90 max-w-2xl">
-              {STRINGS.CONCERNS.SUBTITLE}
+              {t.CONCERNS.SUBTITLE}
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8">
-            {STRINGS.CONCERNS.CARDS.map((card, i) => (
+            {t.CONCERNS.CARDS.map((card, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 20 }}
@@ -240,7 +244,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                   }}
                   className="text-sm font-bold uppercase tracking-widest flex items-center gap-2 hover:gap-4 transition-all text-[var(--color-neon-orange)]"
                 >
-                  查看科学证据 →
+                  {language === 'zh' ? '查看科学证据 →' : 'View Scientific Evidence →'}
                 </button>
               </motion.div>
             ))}
@@ -252,7 +256,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
       <section className="py-32 px-6 bg-[var(--color-gallery-white)] overflow-hidden">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center gap-4 mb-16">
-            <h2 className="text-sm font-mono font-bold tracking-widest uppercase bg-black text-white px-3 py-1">{STRINGS.COMMUNITY.SECTION_ID}</h2>
+            <h2 className="text-sm font-mono font-bold tracking-widest uppercase bg-black text-white px-3 py-1">{t.COMMUNITY.SECTION_ID}</h2>
             <div className="h-px flex-1 bg-black/10"></div>
           </div>
 
@@ -268,20 +272,20 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                   Ownership
                 </div>
                 <div>
-                  <h4 className="text-2xl font-display uppercase mb-2">{STRINGS.COMMUNITY.SINGLE_DESC}</h4>
-                  <p className="text-slate-500 font-bold mb-8">{STRINGS.COMMUNITY.SINGLE_SUB}</p>
+                  <h4 className="text-2xl font-display uppercase mb-2">{t.COMMUNITY.SINGLE_DESC}</h4>
+                  <p className="text-slate-500 font-bold mb-8">{t.COMMUNITY.SINGLE_SUB}</p>
                 </div>
                 <div className="text-5xl font-display text-[var(--color-neon-orange)]">
-                  {STRINGS.COMMUNITY.SINGLE_PRICE.split(' / ')[0]}
-                  {STRINGS.COMMUNITY.SINGLE_PRICE.includes(' / ') && (
-                    <span className="text-2xl text-slate-400 ml-2">/ {STRINGS.COMMUNITY.SINGLE_PRICE.split(' / ')[1]}</span>
+                  {t.COMMUNITY.SINGLE_PRICE.split(' / ')[0]}
+                  {t.COMMUNITY.SINGLE_PRICE.includes(' / ') && (
+                    <span className="text-2xl text-slate-400 ml-2">/ {t.COMMUNITY.SINGLE_PRICE.split(' / ')[1]}</span>
                   )}
                 </div>
               </motion.div>
 
               {/* Bundles */}
               <div className="grid grid-cols-1 gap-4">
-                {STRINGS.COMMUNITY.BUNDLES.map((bundle, i) => (
+                {t.COMMUNITY.BUNDLES.map((bundle, i) => (
                   <motion.div 
                     key={i}
                     whileHover={{ x: 10 }}
@@ -289,7 +293,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                   >
                     <div>
                       <div className="text-[10px] font-mono font-bold text-[var(--color-neon-orange)] mb-0.5">{bundle.saving}</div>
-                      <div className="text-xl font-display uppercase">{bundle.count}打包</div>
+                      <div className="text-xl font-display uppercase">{bundle.count}</div>
                       <div className="text-[10px] font-mono font-bold opacity-30 uppercase tracking-widest">{bundle.type}</div>
                     </div>
                     <div className="text-2xl font-display group-hover:text-[var(--color-neon-orange)] transition-colors">{bundle.price}</div>
@@ -310,34 +314,34 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
               
               <div className="mb-2">
                 <span className="text-[10px] font-mono font-bold text-[var(--color-neon-orange)] uppercase tracking-[0.3em]">
-                  {STRINGS.COMMUNITY.MEMBERSHIP.TAG}
+                  {t.COMMUNITY.MEMBERSHIP.TAG}
                 </span>
               </div>
-              <h4 className="text-4xl font-display uppercase mb-4 leading-none">加入社群<br />获取全集</h4>
+              <h4 className="text-4xl font-display uppercase mb-4 leading-none">{language === 'zh' ? '加入社群\n获取全集' : 'Join Community\nGet Full Set'}</h4>
               <p className="text-slate-400 font-bold mb-8 text-sm leading-relaxed">
-                {STRINGS.COMMUNITY.SUBTITLE}
+                {t.COMMUNITY.SUBTITLE}
               </p>
 
               <div className="mb-8">
                 <div className="flex items-baseline gap-2">
-                  <span className="text-7xl font-display text-[var(--color-neon-orange)]">{STRINGS.COMMUNITY.MEMBERSHIP.PRICE}</span>
-                  <span className="text-xl font-bold opacity-50">{STRINGS.COMMUNITY.MEMBERSHIP.UNIT}</span>
+                  <span className="text-7xl font-display text-[var(--color-neon-orange)]">{t.COMMUNITY.MEMBERSHIP.PRICE}</span>
+                  <span className="text-xl font-bold opacity-50">{t.COMMUNITY.MEMBERSHIP.UNIT}</span>
                 </div>
                 <div className="mt-2 text-sm font-mono font-bold text-[var(--color-neon-orange)] uppercase tracking-widest">
-                  {STRINGS.COMMUNITY.MEMBERSHIP.BENEFIT}
+                  {t.COMMUNITY.MEMBERSHIP.BENEFIT}
                 </div>
               </div>
 
               <div className="mt-auto space-y-6">
                 <div className="space-y-2">
                   <div className="flex justify-between text-[10px] font-mono font-bold uppercase tracking-widest">
-                    <span className="opacity-50">当前席位进度</span>
-                    <span className="text-[var(--color-neon-orange)]">{STRINGS.COMMUNITY.MEMBERSHIP.PROGRESS}/100</span>
+                    <span className="opacity-50">{language === 'zh' ? '当前席位进度' : 'Current Progress'}</span>
+                    <span className="text-[var(--color-neon-orange)]">{t.COMMUNITY.MEMBERSHIP.PROGRESS}/100</span>
                   </div>
                   <div className="h-2 bg-white/10 brutal-border border-white/20 overflow-hidden">
                     <motion.div 
                       initial={{ width: 0 }}
-                      whileInView={{ width: `${STRINGS.COMMUNITY.MEMBERSHIP.PROGRESS}%` }}
+                      whileInView={{ width: `${t.COMMUNITY.MEMBERSHIP.PROGRESS}%` }}
                       transition={{ duration: 1.5, ease: "easeOut" }}
                       className="h-full bg-[var(--color-neon-orange)]"
                     />
@@ -346,17 +350,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
 
                 <div className="p-4 border border-white/20 bg-white/5 font-mono text-xs space-y-2">
                   <div className="flex justify-between">
-                    <span className="opacity-50">涨价规则:</span>
-                    <span className="text-[var(--color-neon-orange)]">{STRINGS.COMMUNITY.MEMBERSHIP.RULE}</span>
+                    <span className="opacity-50">{language === 'zh' ? '涨价规则:' : 'Price Rule:'}</span>
+                    <span className="text-[var(--color-neon-orange)]">{t.COMMUNITY.MEMBERSHIP.RULE}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="opacity-50">当前状态:</span>
-                    <span className="animate-pulse text-[var(--color-neon-orange)]">● {STRINGS.COMMUNITY.MEMBERSHIP.CURRENT_STATUS}</span>
+                    <span className="opacity-50">{language === 'zh' ? '当前状态:' : 'Status:'}</span>
+                    <span className="animate-pulse text-[var(--color-neon-orange)]">● {t.COMMUNITY.MEMBERSHIP.CURRENT_STATUS}</span>
                   </div>
                 </div>
 
                 <button className="w-full py-4 bg-[var(--color-neon-orange)] text-white font-display text-xl uppercase tracking-widest hover:bg-[var(--color-gallery-white)] hover:text-black transition-all brutal-border border-white">
-                  立即加入社群
+                  {language === 'zh' ? '立即加入社群' : 'Join Community Now'}
                 </button>
               </div>
             </motion.div>
@@ -368,7 +372,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
       <section className="py-32 px-6 bg-[var(--color-gallery-white)] border-b-2 border-black relative overflow-hidden">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center gap-4 mb-16">
-            <h2 className="text-sm font-mono font-bold tracking-widest uppercase bg-black text-white px-3 py-1">{STRINGS.SHAKE.SECTION_ID}</h2>
+            <h2 className="text-sm font-mono font-bold tracking-widest uppercase bg-black text-white px-3 py-1">{t.SHAKE.SECTION_ID}</h2>
             <div className="h-px flex-1 bg-black/10"></div>
           </div>
 
@@ -391,7 +395,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                 
                 {!randomPaper && !isShaking && (
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
-                    <span className="text-xs font-mono font-bold uppercase tracking-[0.3em] opacity-40">{STRINGS.SHAKE.CLICK_PROMPT}</span>
+                    <span className="text-xs font-mono font-bold uppercase tracking-[0.3em] opacity-40">{t.SHAKE.CLICK_PROMPT}</span>
                   </div>
                 )}
               </motion.div>
@@ -402,7 +406,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                 className="mt-12 px-8 py-4 bg-black text-white font-bold uppercase tracking-widest brutal-shadow hover:bg-[var(--color-neon-orange)] transition-all flex items-center gap-3 disabled:opacity-50"
               >
                 <RefreshCw className={`w-5 h-5 ${isShaking ? 'animate-spin' : ''}`} />
-                {STRINGS.SHAKE.CTA}
+                {t.SHAKE.CTA}
               </button>
             </div>
 
@@ -417,7 +421,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                     className="w-full bg-[var(--color-gallery-white)] brutal-border p-8 brutal-shadow-orange relative"
                   >
                     <div className="absolute -top-4 -left-4 bg-[var(--color-neon-orange)] text-white text-[10px] font-mono font-bold px-3 py-1 uppercase tracking-widest brutal-border border-white">
-                      {STRINGS.SHAKE.LUCKY_PICK}
+                      {t.SHAKE.LUCKY_PICK}
                     </div>
                     
                     <div className="flex justify-between items-start mb-6">
@@ -449,7 +453,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                       rel="noopener noreferrer"
                       className="w-full py-4 border-2 border-black font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-all flex items-center justify-center gap-2"
                     >
-                      {STRINGS.SHAKE.READ_MORE} <BookOpen className="w-4 h-4" />
+                      {t.SHAKE.READ_MORE} <BookOpen className="w-4 h-4" />
                     </a>
                   </motion.div>
                 ) : isShaking ? (
@@ -460,13 +464,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                   >
                     <div className="text-6xl mb-4">🧪</div>
                     <p className="font-mono text-sm font-bold text-slate-400 uppercase tracking-widest animate-pulse">
-                      {STRINGS.SHAKE.LOADING}
+                      {t.SHAKE.LOADING}
                     </p>
                   </motion.div>
                 ) : (
                   <div className="text-center p-12 brutal-border border-dashed border-slate-300">
                     <p className="text-slate-400 font-bold uppercase tracking-widest leading-relaxed whitespace-pre-line">
-                      {STRINGS.SHAKE.DESC}
+                      {t.SHAKE.DESC}
                     </p>
                   </div>
                 )}
@@ -488,12 +492,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
             >
-              <div className="inline-block font-mono text-[var(--color-neon-orange)] mb-6 tracking-[0.5em] uppercase">{STRINGS.FOOTER.SERIES_COLLECTION}</div>
+              <div className="inline-block font-mono text-[var(--color-neon-orange)] mb-6 tracking-[0.5em] uppercase">{t.FOOTER.SERIES_COLLECTION}</div>
               <h2 className="text-8xl md:text-9xl font-display font-bold uppercase tracking-tighter mb-10 leading-[0.8]">
                 {APP_CONFIG.SERIES_NAME}
               </h2>
               <p className="text-2xl font-bold opacity-60 max-w-xl leading-relaxed italic">
-                {STRINGS.FOOTER.DESC}
+                {t.FOOTER.DESC}
               </p>
             </motion.div>
             <div className="hidden md:block relative">
@@ -504,7 +508,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
               >
                 <div className="text-center">
                   <span className="text-[18vw] font-display leading-none text-[var(--color-neon-orange)] drop-shadow-[10px_10px_0px_rgba(0,0,0,1)]">110+</span>
-                  <p className="text-3xl font-mono font-bold uppercase tracking-[0.2em] mt-6 opacity-40">{STRINGS.FOOTER.CHAPTERS}</p>
+                  <p className="text-3xl font-mono font-bold uppercase tracking-[0.2em] mt-6 opacity-40">{t.FOOTER.CHAPTERS}</p>
                 </div>
               </motion.div>
               {/* Decorative dots */}
@@ -519,7 +523,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
           <div className="mb-12 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="w-3 h-3 bg-[var(--color-neon-orange)] animate-pulse"></div>
-              <h3 className="text-sm font-mono font-bold uppercase tracking-[0.4em] opacity-60">{STRINGS.FOOTER.DB_INDEX_FULL}</h3>
+              <h3 className="text-sm font-mono font-bold uppercase tracking-[0.4em] opacity-60">{t.FOOTER.DB_INDEX_FULL}</h3>
             </div>
             <div className="h-px flex-1 bg-white/10 mx-12"></div>
             <span className="font-mono text-xs opacity-40">v1.0.42</span>

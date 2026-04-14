@@ -1,20 +1,20 @@
 export interface FAQItem {
-  question: string;
-  answer: string;
-  category: string;
+  question: { zh: string; en: string };
+  answer: { zh: string; en: string };
+  category: { zh: string; en: string };
 }
 
 export const FAQ_DATA: FAQItem[] = [
   // 第一部分：品种、历史与感官基础 (1-15)
   {
-    category: "品种、历史与感官基础",
-    question: "黄精在《中国药典》中收载了哪三个品种？",
-    answer: "分别是黄精（鸡头黄精）、滇黄精（大黄精）和多花黄精（姜形黄精）。"
+    category: { zh: "品种、历史与感官基础", en: "Varieties, History & Sensory Basics" },
+    question: { zh: "黄精在《中国药典》中收载了哪三个品种？", en: "Which three varieties of Polygonatum are listed in the Chinese Pharmacopoeia?" },
+    answer: { zh: "分别是黄精（鸡头黄精）、滇黄精（大黄精）和多花黄精（姜形黄精）。", en: "They are Polygonatum sibiricum (chicken-head Polygonatum), Polygonatum kingianum (large Polygonatum), and Polygonatum cyrtonema (ginger-shaped Polygonatum)." }
   },
   {
-    category: "品种、历史与感官基础",
-    question: "为什么多花黄精在传统评价中被视为精品？",
-    answer: "其历史记载质量上乘，且现代研究发现其总皂苷含量显著高于其他品种，最高可达普通黄精的 20 倍。"
+    category: { zh: "品种、历史与感官基础", en: "Varieties, History & Sensory Basics" },
+    question: { zh: "为什么多花黄精在传统评价中被视为精品？", en: "Why is Polygonatum cyrtonema considered a premium variety in traditional evaluation?" },
+    answer: { zh: "其历史记载质量上乘，且现代研究发现其总皂苷含量显著高于其他品种，最高可达普通黄精的 20 倍。", en: "It has a historical reputation for superior quality, and modern research shows its total saponin content is significantly higher than other varieties, up to 20 times that of common Polygonatum." }
   },
   {
     category: "品种、历史与感官基础",

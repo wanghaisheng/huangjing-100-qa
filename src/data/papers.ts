@@ -1,34 +1,34 @@
 export interface Paper {
   id: number;
-  title: string;
-  source: string;
+  title: { zh: string; en: string };
+  source: { zh: string; en: string };
   year: number;
-  category: string;
-  significance: string;
+  category: { zh: string; en: string };
+  significance: { zh: string; en: string };
 }
 
 export const CATEGORIES = [
-  "化学成分与质量标准",
-  "炮制工艺与“九蒸九制”",
-  "生殖健康研究",
-  "代谢性疾病",
-  "神经系统与抗衰老",
-  "肠道健康与免疫调节",
-  "肝、肾、骨骼及其他",
-  "抗肿瘤研究",
-  "产品开发与产业",
-  "现代技术与安全性"
+  { zh: "化学成分与质量标准", en: "Chemical Composition & Quality Standards" },
+  { zh: "炮制工艺与“九蒸九制”", en: "Processing Technology & 'Nine Steaming and Nine Sun-drying'" },
+  { zh: "生殖健康研究", en: "Reproductive Health Research" },
+  { zh: "代谢性疾病", en: "Metabolic Diseases" },
+  { zh: "神经系统与抗衰老", en: "Nervous System & Anti-aging" },
+  { zh: "肠道健康与免疫调节", en: "Gut Health & Immune Regulation" },
+  { zh: "肝、肾、骨骼及其他", en: "Liver, Kidney, Bone & Others" },
+  { zh: "抗肿瘤研究", en: "Anti-tumor Research" },
+  { zh: "产品开发与产业", en: "Product Development & Industry" },
+  { zh: "现代技术与安全性", en: "Modern Technology & Safety" }
 ];
 
 export const PAPERS: Paper[] = [
   // 一、 化学成分与质量标准
   {
     id: 1,
-    title: "黄精中性糖分离纯化及结构分析",
-    source: "长春工业大学",
+    title: { zh: "黄精中性糖分离纯化及结构分析", en: "Isolation, Purification and Structural Analysis of Neutral Polysaccharides from Polygonatum" },
+    source: { zh: "长春工业大学", en: "Changchun University of Technology" },
     year: 2025,
-    category: "化学成分与质量标准",
-    significance: "揭示核心成分结构。"
+    category: { zh: "化学成分与质量标准", en: "Chemical Composition & Quality Standards" },
+    significance: { zh: "揭示核心成分结构。", en: "Revealing the structure of core components." }
   },
   {
     id: 2,

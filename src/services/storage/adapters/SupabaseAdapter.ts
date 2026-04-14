@@ -14,7 +14,7 @@ export class SupabaseAdapter implements StorageAdapter {
 
     this.client = createClient(supabaseUrl, supabaseKey, {
       global: {
-        fetch: (input, init) => fetch(input, init),
+        fetch: fetch,
       },
     });
   }
