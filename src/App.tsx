@@ -29,8 +29,8 @@ export default function App() {
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const [isDuckDBReady, setIsDuckDBReady] = useState(false);
   const [sqlQuery, setSqlQuery] = useState('');
-  const [sqlResult, setSqlResult] = useState<any[] | null>(null);
-  const [fullPapers, setFullPapers] = useState<any[]>([]);
+  const [sqlResult, setSqlResult] = useState<unknown[] | null>(null);
+  const [fullPapers, setFullPapers] = useState<unknown[]>([]);
   const [isSearchingFull, setIsSearchingFull] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalFullPapers, setTotalFullPapers] = useState(0);
@@ -58,7 +58,7 @@ export default function App() {
     initDB();
   }, [papers, faqData]);
 
-  const getString = (val: any, lang: Language = language) => {
+  const getString = (val: string | { zh: string; en: string } | undefined, lang: Language = language): string => {
     if (typeof val === 'string') return val;
     if (val && typeof val === 'object') {
       return val[lang] || val.zh || val.en || '';
@@ -66,7 +66,7 @@ export default function App() {
     return '';
   };
 
-  const getZhString = (val: any) => {
+  const getZhString = (val: string | { zh: string; en: string } | undefined): string => {
     if (typeof val === 'string') return val;
     if (val && typeof val === 'object') {
       return val.zh || val.en || '';
