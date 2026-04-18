@@ -27,7 +27,7 @@ export class SqlJsAdapter<T extends { id: string }, AuthUser = { id: string }> i
     const dataToWrite = this.appId ? { ...data, appId: this.appId } : data;
     
     // Create table if not exists (simple heuristic based on first row)
-    const columnsDef = Object.keys(dataToWrite as object).map(k => `"${k}" TEXT`).join(', ');
+    const columnsDef = Object.keys(dataToWrite as object).map(k => k === 'id' ? `"${k}" TEXT PRIMARY KEY` : `"${k}" TEXT`).join(', ');
     db.run(`CREATE TABLE IF NOT EXISTS "${collection}" (${columnsDef})`);
 
     const columns = Object.keys(dataToWrite as object).map(k => `"${k}"`).join(', ');
@@ -36,7 +36,7 @@ export class SqlJsAdapter<T extends { id: string }, AuthUser = { id: string }> i
       if (typeof v === 'string') return `'${v.replace(/'/g, "''")}'`;
       return v;
     }).join(', ');
-    db.run(`INSERT INTO ${collection} (${columns}) VALUES (${values})`);
+    db.run(`INSERT OR REPLACE INTO "${collection}" (${columns}) VALUES (${values})`);
     return data;
   }
 
@@ -91,7 +91,7 @@ export class SqlJsAdapter<T extends { id: string }, AuthUser = { id: string }> i
     const dataToWrite = this.appId ? data.map(item => ({ ...item, appId: this.appId })) : data;
     
     // Create table based on keys of the first row
-    const columnsDef = Object.keys(dataToWrite[0]).map(k => `"${k}" TEXT`).join(', ');
+    const columnsDef = Object.keys(dataToWrite[0]).map(k => k === 'id' ? `"${k}" TEXT PRIMARY KEY` : `"${k}" TEXT`).join(', ');
     db.run(`CREATE TABLE IF NOT EXISTS "${collection}" (${columnsDef})`);
     
     // Execute bulk insertion in a transaction for performance
@@ -99,7 +99,7 @@ export class SqlJsAdapter<T extends { id: string }, AuthUser = { id: string }> i
     
     const columns = Object.keys(dataToWrite[0]).map(k => `"${k}"`).join(', ');
     
-    const stmt = db.prepare(`INSERT INTO ${collection} (${columns}) VALUES (${Object.keys(dataToWrite[0]).map(() => '?').join(', ')})`);
+    const stmt = db.prepare(`INSERT OR REPLACE INTO "${collection}" (${columns}) VALUES (${Object.keys(dataToWrite[0]).map(() => '?').join(', ')})`);
     for (const row of dataToWrite) {
       const values = Object.values(row).map(v => typeof v === 'object' ? JSON.stringify(v) : String(v));
       stmt.run(values);
