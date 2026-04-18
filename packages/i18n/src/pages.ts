@@ -109,7 +109,7 @@ export const PAGES_STRINGS = {
     },
     APP: {
       SEARCH_PLACEHOLDER: 'Search papers or questions...',
-      DUCKDB_ACTIVE: 'DuckDB WASM Active',
+      DUCKDB_ACTIVE: '',
       FILTER_TITLE: 'Research Field Classification',
       ALL_PAPERS: 'All Papers',
       ITEMS_SUFFIX: 'ITEMS',
@@ -121,7 +121,7 @@ export const PAGES_STRINGS = {
       ALL_QUESTIONS: 'All Questions',
       FULL_DB_TITLE: 'Full Database',
       FULL_DB_SUBTITLE: '1100+ SCIENTIFIC PAPERS & THESES',
-      QUERYING: 'Querying DuckDB...',
+      QUERYING: 'Searching database...',
       TABLE_HEADERS: {
         YEAR: 'Year',
         TITLE: 'Title',
@@ -129,8 +129,8 @@ export const PAGES_STRINGS = {
         INSTITUTION: 'Institution',
         DATABASE: 'Database'
       },
-      NO_DB_RESULTS: 'No results found in DuckDB',
-      POWERED_BY: 'Powered by DuckDB-Wasm',
+      NO_DB_RESULTS: 'No results found',
+      POWERED_BY: '',
       PREV_PAGE: 'Previous Page',
       NEXT_PAGE: 'Next Page',
       PAGE_INFO: 'Page {current} / {total}',
@@ -162,6 +162,7 @@ export const PAGES_STRINGS = {
       GENERATED_SQL: 'Generated SQL',
       EXECUTE_SQL: 'Execute SQL in DuckDB',
       DOWNLOAD_SQL: 'Download SQL File',
+      DOWNLOAD_SEED_SQL: 'Download All Seed SQL',
       PROCESSING: 'Processing...',
       SUCCESS: 'Operation Successful!',
       ERROR: 'Error',
@@ -295,7 +296,7 @@ export const PAGES_STRINGS = {
     },
     APP: {
       SEARCH_PLACEHOLDER: '搜索文献或问题...',
-      DUCKDB_ACTIVE: 'DuckDB WASM 已启动',
+      DUCKDB_ACTIVE: '',
       FILTER_TITLE: '研究领域分类',
       ALL_PAPERS: '全部文献',
       ITEMS_SUFFIX: '条记录',
@@ -307,7 +308,7 @@ export const PAGES_STRINGS = {
       ALL_QUESTIONS: '全部问题',
       FULL_DB_TITLE: '全量文献大库',
       FULL_DB_SUBTITLE: '1100+ 篇学术论文与研究',
-      QUERYING: '正在查询 DuckDB...',
+      QUERYING: '正在查询数据库...',
       TABLE_HEADERS: {
         YEAR: '年度',
         TITLE: '中文题名',
@@ -315,8 +316,8 @@ export const PAGES_STRINGS = {
         INSTITUTION: '单位',
         DATABASE: '库'
       },
-      NO_DB_RESULTS: 'DuckDB 中未找到结果',
-      POWERED_BY: '由 DuckDB-Wasm 驱动',
+      NO_DB_RESULTS: '未找到结果',
+      POWERED_BY: '',
       PREV_PAGE: '上一页',
       NEXT_PAGE: '下一页',
       PAGE_INFO: '第 {current} 页 / 共 {total} 页',
@@ -356,6 +357,7 @@ export const PAGES_STRINGS = {
       GENERATED_SQL: '生成的 SQL',
       EXECUTE_SQL: '在 DuckDB 中执行 SQL',
       DOWNLOAD_SQL: '下载 SQL 文件',
+      DOWNLOAD_SEED_SQL: '下载全量 Seed SQL',
       PROCESSING: '处理中...',
       SUCCESS: '操作成功！',
       ERROR: '错误',

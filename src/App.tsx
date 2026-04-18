@@ -1,10 +1,10 @@
 import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Search, Filter, BookOpen, GraduationCap, Calendar, Tag, ChevronRight, HelpCircle, FileText, ChevronDown, ChevronUp, Database } from 'lucide-react';
+import { Search, Filter, BookOpen, GraduationCap, Calendar, Tag, ChevronRight, HelpCircle, FileText, ChevronDown, ChevronUp } from 'lucide-react';
 import { LandingPage } from './components/LandingPage';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
-import { TEST_MESSAGE, Paper, FaqItem, I18nString, DataService } from '@heytcm/core';
+import { Paper, FaqItem, I18nString, DataService } from '@heytcm/core';
 import { apiClient } from '@heytcm/api';
 import { APP_CONFIG } from '@heytcm/config';
 import { PAGES_STRINGS, Language } from '@heytcm/i18n';
@@ -165,7 +165,6 @@ function AppContent() {
       />
 
       <main className="flex-1 w-full">
-        <div className="bg-yellow-100 p-2 text-center text-sm font-mono">{TEST_MESSAGE}</div>
         {showLanding ? (
           <LandingPage onNavigate={handleTabChange} language={language} />
         ) : (
@@ -181,12 +180,6 @@ function AppContent() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
-                {isDuckDBReady && (
-                  <div className="absolute -bottom-6 right-0 flex items-center gap-1 text-[9px] font-mono font-bold text-slate-400 uppercase tracking-widest">
-                    <Database className="w-3 h-3" />
-                    {t.APP.DUCKDB_ACTIVE}
-                  </div>
-                )}
               </div>
             )}
 
@@ -409,25 +402,27 @@ function AppContent() {
                     <p className="mt-4 font-mono text-sm text-slate-400 uppercase tracking-widest">{t.APP.QUERYING}</p>
                   </div>
                 ) : (
-                  <div className="brutal-border bg-[var(--color-gallery-white)] overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
+                  <div className="brutal-border bg-[var(--color-gallery-white)] overflow-x-auto relative">
+                    <table className="w-full text-left border-collapse border-b border-black">
                       <thead>
-                        <tr className="bg-[var(--color-brutal-black)] text-white font-mono text-xs uppercase tracking-widest">
-                          <th className="px-6 py-4 border-r border-white/10">{t.APP.TABLE_HEADERS.YEAR}</th>
+                        <tr className="bg-[var(--color-brutal-black)] text-white font-mono text-[10px] uppercase tracking-[0.2em]">
+                          <th className="px-6 py-4 border-r border-white/10 w-16">ID</th>
+                          <th className="px-6 py-4 border-r border-white/10 w-24">{t.APP.TABLE_HEADERS.YEAR}</th>
                           <th className="px-6 py-4 border-r border-white/10">{t.APP.TABLE_HEADERS.TITLE}</th>
                           <th className="px-6 py-4 border-r border-white/10">{t.APP.TABLE_HEADERS.AUTHOR}</th>
                           <th className="px-6 py-4 border-r border-white/10">{t.APP.TABLE_HEADERS.INSTITUTION}</th>
                           <th className="px-6 py-4">{t.APP.TABLE_HEADERS.DATABASE}</th>
                         </tr>
                       </thead>
-                      <tbody className="text-sm font-bold">
-                        {fullPapers.map((paper, idx) => (
-                          <tr key={idx} className="border-b-2 border-slate-100 hover:bg-slate-50 transition-colors">
-                            <td className="px-6 py-4 border-r border-slate-100 whitespace-nowrap">{paper[APP_CONFIG.DUCKDB_COLUMNS.YEAR]}</td>
-                            <td className="px-6 py-4 border-r border-slate-100 min-w-[300px]">{paper[APP_CONFIG.DUCKDB_COLUMNS.TITLE]}</td>
-                            <td className="px-6 py-4 border-r border-slate-100 whitespace-nowrap">{paper[APP_CONFIG.DUCKDB_COLUMNS.AUTHOR]}</td>
-                            <td className="px-6 py-4 border-r border-slate-100">{paper[APP_CONFIG.DUCKDB_COLUMNS.INSTITUTION]}</td>
-                            <td className="px-6 py-4 whitespace-nowrap">{paper[APP_CONFIG.DUCKDB_COLUMNS.DATABASE]}</td>
+                      <tbody>
+                        {fullPapers.map((paper: any, idx) => (
+                          <tr key={idx} className="border-b border-black/10 hover:bg-[var(--color-brutal-black)] hover:text-white transition-all group cursor-crosshair">
+                            <td className="px-6 py-4 border-r border-black/10 font-mono text-xs opacity-40 group-hover:opacity-100">{(currentPage - 1) * APP_CONFIG.ITEMS_PER_PAGE + idx + 1}</td>
+                            <td className="px-6 py-4 border-r border-black/10 font-mono text-xs italic">{paper[APP_CONFIG.DUCKDB_COLUMNS.YEAR]}</td>
+                            <td className="px-6 py-4 border-r border-black/10 font-bold tracking-tight">{paper[APP_CONFIG.DUCKDB_COLUMNS.TITLE]}</td>
+                            <td className="px-6 py-4 border-r border-black/10 text-sm italic">{paper[APP_CONFIG.DUCKDB_COLUMNS.AUTHOR]}</td>
+                            <td className="px-6 py-4 border-r border-black/10 text-xs uppercase tracking-widest opacity-60 group-hover:opacity-100">{paper[APP_CONFIG.DUCKDB_COLUMNS.INSTITUTION]}</td>
+                            <td className="px-6 py-4 font-mono text-[10px] opacity-40 group-hover:opacity-100">{paper[APP_CONFIG.DUCKDB_COLUMNS.DATABASE] || 'CNKI'}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -480,9 +475,6 @@ function AppContent() {
                       </button>
                     </div>
                     
-                    <div className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">
-                      {t.APP.POWERED_BY}
-                    </div>
                   </div>
                 )}
               </div>

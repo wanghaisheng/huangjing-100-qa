@@ -97,6 +97,48 @@ export const AdminPage = ({ language }: { language: Language }) => {
     URL.revokeObjectURL(url);
   };
 
+  const handleDownloadSQL = async () => {
+    setIsProcessing(true);
+    try {
+      const storage = getStorage(APP_CONFIG.STORAGE_PROVIDER as 'supabase' | 'sqljs');
+      const collections = ['papers', 'faq', 'full_papers'];
+      let sql = '';
+      
+      for (const coll of collections) {
+        const data = await storage.query(coll, {});
+        if (data.length > 0) {
+          const keys = Object.keys(data[0]);
+          const cols = keys.map(k => `"${k}"`).join(', ');
+          sql += `-- Table: ${coll}\n`;
+          sql += `CREATE TABLE IF NOT EXISTS "${coll}" (${keys.map(k => k === 'id' ? `"${k}" TEXT PRIMARY KEY` : `"${k}" TEXT`).join(', ')});\n`;
+          
+          for (const row of data) {
+            const values = Object.values(row).map(v => {
+              if (v === null || v === undefined) return 'NULL';
+              const str = typeof v === 'object' ? JSON.stringify(v) : String(v);
+              return `'${str.replace(/'/g, "''")}'`;
+            }).join(', ');
+            sql += `INSERT OR REPLACE INTO "${coll}" (${cols}) VALUES (${values});\n`;
+          }
+          sql += '\n';
+        }
+      }
+      
+      const blob = new Blob([sql], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `seed.sql`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err: any) {
+      console.error(err);
+      setMessage(`Export Error: ${err.message}`);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   const handleDownloadConfig = () => {
     const configContent = `export const SITE_CONFIG = {
   herbNameZh: '${siteConfig.herbNameZh}',
@@ -211,6 +253,12 @@ export const AdminPage = ({ language }: { language: Language }) => {
                 className="px-6 py-3 bg-white text-black font-bold uppercase tracking-widest brutal-border hover:bg-slate-100 brutal-shadow transition-all"
               >
                 {t.DOWNLOAD_SQL || 'Download JSON'}
+              </button>
+              <button
+                onClick={handleDownloadSQL}
+                className="px-6 py-3 bg-[var(--color-brutal-black)] text-white font-bold uppercase tracking-widest brutal-border hover:bg-slate-800 brutal-shadow transition-all"
+              >
+                {t.DOWNLOAD_SEED_SQL || 'Download Seed SQL'}
               </button>
             </div>
           </div>

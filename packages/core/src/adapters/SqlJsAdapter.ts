@@ -30,6 +30,11 @@ export class SqlJsAdapter<T extends { id: string }, AuthUser = { id: string }> i
     const columnsDef = Object.keys(dataToWrite as object).map(k => k === 'id' ? `"${k}" TEXT PRIMARY KEY` : `"${k}" TEXT`).join(', ');
     db.run(`CREATE TABLE IF NOT EXISTS "${collection}" (${columnsDef})`);
 
+    // Ensure appId column exists if we have one to write
+    if (this.appId && !this.columnExists(collection, 'appId')) {
+      try { db.run(`ALTER TABLE "${collection}" ADD COLUMN "appId" TEXT`); } catch (e) { console.warn(`Could not add appId to ${collection}`, e); }
+    }
+
     const columns = Object.keys(dataToWrite as object).map(k => `"${k}"`).join(', ');
     const values = Object.values(dataToWrite as object).map(v => {
       if (typeof v === 'object') return `'${JSON.stringify(v).replace(/'/g, "''")}'`;
@@ -40,14 +45,28 @@ export class SqlJsAdapter<T extends { id: string }, AuthUser = { id: string }> i
     return data;
   }
 
-  private getAuthorizedWhere = () => {
-    return this.appId ? `appId = '${this.appId}'` : '1=1';
+  private columnExists(table: string, column: string): boolean {
+    if (!this.db) return false;
+    try {
+      const result = this.db.exec(`PRAGMA table_info("${table}")`);
+      if (!result || result.length === 0) return false;
+      return result[0].values.some(v => v[1] === column);
+    } catch {
+      return false;
+    }
+  }
+
+  private getAuthorizedWhere = (collection: string) => {
+    if (this.appId && this.columnExists(collection, 'appId')) {
+      return `appId = '${this.appId}'`;
+    }
+    return '1=1';
   };
 
   async read(collection: string, id: string): Promise<T | null> {
     const db = await this.ensureDb();
     try {
-      const result = db.exec(`SELECT * FROM ${collection} WHERE id = '${id}' AND ${this.getAuthorizedWhere()}`);
+      const result = db.exec(`SELECT * FROM "${collection}" WHERE id = '${id}' AND ${this.getAuthorizedWhere(collection)}`);
       if (result.length === 0) return null;
       
       // Map columns to values
@@ -70,17 +89,17 @@ export class SqlJsAdapter<T extends { id: string }, AuthUser = { id: string }> i
   async update(collection: string, id: string, data: Partial<T>): Promise<T> {
     const db = await this.ensureDb();
     const setClause = Object.entries(data).map(([k, v]) => {
-      if (typeof v === 'object') return `${k} = '${JSON.stringify(v).replace(/'/g, "''")}'`;
-      if (typeof v === 'string') return `${k} = '${v.replace(/'/g, "''")}'`;
-      return `${k} = ${v}`;
+      if (typeof v === 'object') return `"${k}" = '${JSON.stringify(v).replace(/'/g, "''")}'`;
+      if (typeof v === 'string') return `"${k}" = '${v.replace(/'/g, "''")}'`;
+      return `"${k}" = ${v}`;
     }).join(', ');
-    db.run(`UPDATE ${collection} SET ${setClause} WHERE id = '${id}' AND ${this.getAuthorizedWhere()}`);
+    db.run(`UPDATE "${collection}" SET ${setClause} WHERE id = '${id}' AND ${this.getAuthorizedWhere(collection)}`);
     return this.read(collection, id) as Promise<T>;
   }
 
   async delete(collection: string, id: string): Promise<void> {
     const db = await this.ensureDb();
-    db.run(`DELETE FROM ${collection} WHERE id = '${id}' AND ${this.getAuthorizedWhere()}`);
+    db.run(`DELETE FROM "${collection}" WHERE id = '${id}' AND ${this.getAuthorizedWhere(collection)}`);
   }
 
   async bulkCreate(collection: string, data: T[]): Promise<void> {
@@ -94,6 +113,11 @@ export class SqlJsAdapter<T extends { id: string }, AuthUser = { id: string }> i
     const columnsDef = Object.keys(dataToWrite[0]).map(k => k === 'id' ? `"${k}" TEXT PRIMARY KEY` : `"${k}" TEXT`).join(', ');
     db.run(`CREATE TABLE IF NOT EXISTS "${collection}" (${columnsDef})`);
     
+    // Ensure appId column exists if we have one to write
+    if (this.appId && !this.columnExists(collection, 'appId')) {
+      try { db.run(`ALTER TABLE "${collection}" ADD COLUMN "appId" TEXT`); } catch (e) { console.warn(`Could not add appId to ${collection}`, e); }
+    }
+
     // Execute bulk insertion in a transaction for performance
     db.run('BEGIN TRANSACTION;');
     
@@ -149,10 +173,10 @@ export class SqlJsAdapter<T extends { id: string }, AuthUser = { id: string }> i
       : '1=1';
     
     // Only combine with AND if we have a valid filter clause
-    const whereClause = `${filterClause} AND ${this.getAuthorizedWhere()}`;
+    const whereClause = `${filterClause} AND ${this.getAuthorizedWhere(collection)}`;
     
     try {
-      const result = db.exec(`SELECT * FROM ${collection} WHERE ${whereClause}`);
+      const result = db.exec(`SELECT * FROM "${collection}" WHERE ${whereClause}`);
       if (result.length === 0) return [];
       
       // Map columns to values

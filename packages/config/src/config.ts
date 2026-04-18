@@ -10,7 +10,7 @@ export const APP_CONFIG = {
   DUCKDB_CDN_BASE: 'https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.28.0/dist',
   DUCKDB_QUERY_LIMIT: 100,
   ITEMS_PER_PAGE: 20,
-  STORAGE_PROVIDER: 'supabase', // 'supabase' | 'sqljs'
+  STORAGE_PROVIDER: 'sqljs', // 'supabase' | 'sqljs'
   CNKI_BASE_URL: 'https://kns.cnki.net/kns8s/defaultresult/index?crossids=YSTT4HG0%2CLSTPFY1C%2CJUP3MUPD%2CMPMFIG1A%2CWQ0UVIAA%2CBLZOG7CK%2CPWFIRAGL%2CEMRPGLPA%2CNLBO1Z6R%2CNN3FJMUV&korder=SU&kw=',
   DUCKDB_COLUMNS: {
     TITLE: '中文题名',
