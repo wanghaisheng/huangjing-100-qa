@@ -17,7 +17,8 @@ export const APP_CONFIG = {
     AUTHOR: '作者',
     INSTITUTION: '学位授予单位',
     YEAR: '学位授予年度',
-    DATABASE: '数据库'
+    DATABASE: '数据库',
+    ABSTRACT: '摘要'
   }
 };
 

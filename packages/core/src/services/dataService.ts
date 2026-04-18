@@ -111,7 +111,8 @@ export const DataService = {
                year: Number(row['学位授予年度']) || 2025,
                source: row['学位授予单位'] || '',
                category: row['数据库'] || '学术论文',
-               significance: row['被引'] ? `该文献被引用 ${row['被引']} 次，具有较高的学术参考价值。` : '由系统自动选取的代表性学术文献。'
+               significance: row['被引'] ? `该文献被引用 ${row['被引']} 次，具有较高的学术参考价值。` : '由系统自动选取的代表性学术文献。',
+               abstract: row['摘要'] || ''
             }));
             await storage.bulkCreate('papers', featured);
           }

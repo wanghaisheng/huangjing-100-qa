@@ -30,9 +30,13 @@ export class SqlJsAdapter<T extends { id: string }, AuthUser = { id: string }> i
     const columnsDef = Object.keys(dataToWrite as object).map(k => k === 'id' ? `"${k}" TEXT PRIMARY KEY` : `"${k}" TEXT`).join(', ');
     db.run(`CREATE TABLE IF NOT EXISTS "${collection}" (${columnsDef})`);
 
-    // Ensure appId column exists if we have one to write
-    if (this.appId && !this.columnExists(collection, 'appId')) {
-      try { db.run(`ALTER TABLE "${collection}" ADD COLUMN "appId" TEXT`); } catch (e) { console.warn(`Could not add appId to ${collection}`, e); }
+    // Ensure all columns exist dynamically (fixes HMR / schema updates)
+    for (const key of Object.keys(dataToWrite as object)) {
+      if (!this.columnExists(collection, key)) {
+        try { db.run(`ALTER TABLE "${collection}" ADD COLUMN "${key}" TEXT`); } catch (e) {
+          console.warn(`Could not add column ${key} to ${collection}`, e);
+        }
+      }
     }
 
     const columns = Object.keys(dataToWrite as object).map(k => `"${k}"`).join(', ');
@@ -113,9 +117,13 @@ export class SqlJsAdapter<T extends { id: string }, AuthUser = { id: string }> i
     const columnsDef = Object.keys(dataToWrite[0]).map(k => k === 'id' ? `"${k}" TEXT PRIMARY KEY` : `"${k}" TEXT`).join(', ');
     db.run(`CREATE TABLE IF NOT EXISTS "${collection}" (${columnsDef})`);
     
-    // Ensure appId column exists if we have one to write
-    if (this.appId && !this.columnExists(collection, 'appId')) {
-      try { db.run(`ALTER TABLE "${collection}" ADD COLUMN "appId" TEXT`); } catch (e) { console.warn(`Could not add appId to ${collection}`, e); }
+    // Ensure all columns exist dynamically (fixes HMR / schema updates)
+    for (const key of Object.keys(dataToWrite[0])) {
+      if (!this.columnExists(collection, key)) {
+        try { db.run(`ALTER TABLE "${collection}" ADD COLUMN "${key}" TEXT`); } catch (e) {
+          console.warn(`Could not add column ${key} to ${collection}`, e);
+        }
+      }
     }
 
     // Execute bulk insertion in a transaction for performance

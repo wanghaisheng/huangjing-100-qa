@@ -10,6 +10,7 @@ export interface Paper {
   source: string | I18nString;
   category: string | I18nString;
   significance: string | I18nString;
+  abstract?: string | I18nString;
 }
 
 export interface FaqItem {

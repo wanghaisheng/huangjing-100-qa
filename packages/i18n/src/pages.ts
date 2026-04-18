@@ -124,7 +124,7 @@ export const PAGES_STRINGS = {
       QUERYING: 'Searching database...',
       TABLE_HEADERS: {
         YEAR: 'Year',
-        TITLE: 'Title',
+        TITLE: 'Title / Summary',
         AUTHOR: 'Author',
         INSTITUTION: 'Institution',
         DATABASE: 'Database'
@@ -134,7 +134,15 @@ export const PAGES_STRINGS = {
       PREV_PAGE: 'Previous Page',
       NEXT_PAGE: 'Next Page',
       PAGE_INFO: 'Page {current} / {total}',
-      TOTAL_RECORDS: '{total} records in total'
+      TOTAL_RECORDS: '{total} records in total',
+      RESET_FILTERS: 'Reset Filters',
+      VIEW_DETAILS: 'View Details',
+      RELATED_PAPERS: 'Related Research Papers',
+      BACK_TO_FAQ: 'Back to FAQ List',
+      SHARE: 'Share',
+      COPY_LINK: 'Copy Link',
+      COPIED: 'Copied!',
+      NO_ABSTRACT: 'No abstract available.'
     },
     FOOTER: {
       COPYRIGHT: `© ${new Date().getFullYear()} HeyTCM. All rights reserved.`,
@@ -311,7 +319,7 @@ export const PAGES_STRINGS = {
       QUERYING: '正在查询数据库...',
       TABLE_HEADERS: {
         YEAR: '年度',
-        TITLE: '中文题名',
+        TITLE: '题名 与 摘要',
         AUTHOR: '作者',
         INSTITUTION: '单位',
         DATABASE: '库'
@@ -321,7 +329,15 @@ export const PAGES_STRINGS = {
       PREV_PAGE: '上一页',
       NEXT_PAGE: '下一页',
       PAGE_INFO: '第 {current} 页 / 共 {total} 页',
-      TOTAL_RECORDS: '共 {total} 条记录'
+      TOTAL_RECORDS: '共 {total} 条记录',
+      RESET_FILTERS: '重置筛选',
+      VIEW_DETAILS: '查看详情',
+      RELATED_PAPERS: '相关研究文献',
+      BACK_TO_FAQ: '返回常见问题列表',
+      SHARE: '分享',
+      COPY_LINK: '复制链接',
+      COPIED: '已复制!',
+      NO_ABSTRACT: '暂无摘要'
     },
     FOOTER: {
       COPYRIGHT: '© ' + new Date().getFullYear() + ' HeyTCM. 保留所有权利。',

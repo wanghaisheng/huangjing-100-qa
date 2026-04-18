@@ -1,9 +1,10 @@
-import { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Search, Filter, BookOpen, GraduationCap, Calendar, Tag, ChevronRight, HelpCircle, FileText, ChevronDown, ChevronUp } from 'lucide-react';
+import { Search, Filter, BookOpen, GraduationCap, Calendar, Tag, ChevronRight, HelpCircle, FileText, ChevronDown, ChevronUp, ArrowUpDown, ArrowUp, ArrowDown, RotateCcw, Share2, Check } from 'lucide-react';
 import { LandingPage } from './components/LandingPage';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
+import { FaqDetailOverlay } from './components/FaqDetailOverlay';
 import { Paper, FaqItem, I18nString, DataService } from '@heytcm/core';
 import { apiClient } from '@heytcm/api';
 import { APP_CONFIG } from '@heytcm/config';
@@ -32,12 +33,59 @@ function AppContent() {
   const [selectedFaqCategory, setSelectedFaqCategory] = useState<string | null>(null);
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const [isDuckDBReady, setIsDuckDBReady] = useState(false);
+  const [selectedFaqId, setSelectedFaqId] = useState<string | null>(null);
   const [sqlQuery, setSqlQuery] = useState('');
   const [sqlResult, setSqlResult] = useState<unknown[] | null>(null);
   const [fullPapers, setFullPapers] = useState<unknown[]>([]);
   const [isSearchingFull, setIsSearchingFull] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalFullPapers, setTotalFullPapers] = useState(0);
+  const [sortField, setSortField] = useState<string>(APP_CONFIG.DUCKDB_COLUMNS.YEAR);
+  const [sortOrder, setSortOrder] = useState<'ASC' | 'DESC'>('DESC');
+  const [copiedFaqId, setCopiedFaqId] = useState<string | null>(null);
+
+  const handleInlineShare = async (e: React.MouseEvent, faq: FaqItem, faqId: string) => {
+    e.stopPropagation();
+    const shareUrl = `${window.location.origin}${window.location.pathname}?faq=${faqId}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: 'HeyTCM FAQ',
+          text: getString(faq.question),
+          url: shareUrl,
+        });
+      } else {
+        await navigator.clipboard.writeText(`${getString(faq.question)}\n${shareUrl}`);
+        setCopiedFaqId(faqId);
+        setTimeout(() => setCopiedFaqId(null), 2000);
+      }
+    } catch (err) {
+      console.warn('Share failed:', err);
+    }
+  };
+
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      setSortOrder(sortOrder === 'ASC' ? 'DESC' : 'ASC');
+    } else {
+      setSortField(field);
+      setSortOrder('ASC');
+    }
+    setCurrentPage(1);
+  };
+
+  const SortIcon = ({ field }: { field: string }) => {
+    if (sortField !== field) return <ArrowUpDown className="w-3 h-3 opacity-30" />;
+    return sortOrder === 'ASC' ? <ArrowUp className="w-3 h-3 text-[var(--color-neon-orange)]" /> : <ArrowDown className="w-3 h-3 text-[var(--color-neon-orange)]" />;
+  };
+
+  const resetAllFilters = () => {
+    setSearchQuery('');
+    setSelectedCategory(null);
+    setSelectedFaqCategory(null);
+    setExpandedFaq(null);
+    setCurrentPage(1);
+  };
 
   const [papers, setPapers] = useState<Paper[]>([]);
   const [categories, setCategories] = useState<(string | I18nString)[]>([]);
@@ -55,6 +103,18 @@ function AppContent() {
       setFaqData(await apiClient.faq.list());
       setFaqCategories(await apiClient.faq.getCategories());
       setIsDuckDBReady(true);
+
+      // Handle deep links
+      const params = new URLSearchParams(window.location.search);
+      const faqId = params.get('faq');
+      if (faqId) {
+        setActiveTab('faq');
+        setShowLanding(false);
+        setSelectedFaqId(faqId);
+        
+        // Remove param from URL to keep it clean
+        window.history.replaceState({}, '', window.location.pathname);
+      }
     };
     fetchData();
   }, []);
@@ -108,6 +168,22 @@ function AppContent() {
     });
   }, [faqData, searchQuery, selectedFaqCategory, language]);
 
+  const getRelatedPapers = (faq: FaqItem) => {
+    const faqCatZh = getZhString(faq.category);
+    // Find papers with matching category or whose title contains keywords from the question
+    return papers.filter(p => {
+      const pCatZh = getZhString(p.category);
+      if (pCatZh === faqCatZh) return true;
+      
+      const qStr = getString(faq.question).toLowerCase();
+      const pTitleStr = getString(p.title).toLowerCase();
+      
+      // Simple keyword match (at least one word > 2 chars matches)
+      const keywordArr = qStr.split(/\s+/).filter(w => w.length > 1);
+      return keywordArr.some(k => pTitleStr.includes(k));
+    }).slice(0, 3); // Return top 3 related papers
+  };
+
   const handleTabChange = (tab: 'papers' | 'faq' | 'full_database' | 'about' | 'data_source' | 'contact' | 'admin' | 'privacy' | 'terms', category?: string) => {
     setActiveTab(tab);
     setShowLanding(false);
@@ -141,7 +217,13 @@ function AppContent() {
       const fetchFull = async () => {
         setIsSearchingFull(true);
         try {
-          const { results, total } = await apiClient.fullDatabase.search(searchQuery, currentPage, APP_CONFIG.ITEMS_PER_PAGE);
+          const { results, total } = await apiClient.fullDatabase.search(
+            searchQuery, 
+            currentPage, 
+            APP_CONFIG.ITEMS_PER_PAGE,
+            sortField,
+            sortOrder
+          );
           setTotalFullPapers(total);
           setFullPapers(results);
         } catch (err) {
@@ -152,7 +234,7 @@ function AppContent() {
       };
       fetchFull();
     }
-  }, [activeTab, searchQuery, currentPage, isDuckDBReady]);
+  }, [activeTab, searchQuery, currentPage, isDuckDBReady, sortField, sortOrder]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -227,6 +309,15 @@ function AppContent() {
                         );
                       })}
                     </div>
+                    {(selectedCategory !== null || searchQuery !== '') && (
+                      <button
+                        onClick={resetAllFilters}
+                        className="w-full mt-6 px-4 py-3 bg-white text-[var(--color-neon-orange)] font-bold text-xs uppercase tracking-[0.2em] brutal-border border-[var(--color-neon-orange)] hover:bg-[var(--color-neon-orange)] hover:text-white transition-all flex items-center justify-center gap-2 group"
+                      >
+                        <RotateCcw className="w-3 h-3 group-hover:rotate-[-120deg] transition-transform duration-500" />
+                        {t.APP.RESET_FILTERS}
+                      </button>
+                    )}
                   </div>
                 </aside>
 
@@ -271,8 +362,8 @@ function AppContent() {
                                 <GraduationCap className="w-4 h-4" />
                                 <span className="truncate">{getString(paper.source)}</span>
                               </div>
-                              <div className="text-sm font-bold text-slate-600 bg-slate-50 p-4 brutal-border border-slate-200 italic leading-relaxed">
-                                {getString(paper.significance)}
+                              <div className="text-sm font-bold text-slate-600 bg-slate-50 p-4 brutal-border border-slate-200 italic leading-relaxed line-clamp-3">
+                                {paper.abstract ? getString(paper.abstract) : getString(paper.significance)}
                               </div>
                             </div>
 
@@ -341,6 +432,18 @@ function AppContent() {
                   })}
                 </div>
 
+                {(selectedFaqCategory !== null || searchQuery !== '') && (
+                  <div className="flex justify-center mb-12">
+                    <button
+                      onClick={resetAllFilters}
+                      className="px-8 py-3 bg-white text-[var(--color-neon-orange)] font-bold text-xs uppercase tracking-[0.2em] brutal-border border-[var(--color-neon-orange)] hover:bg-[var(--color-neon-orange)] hover:text-white transition-all flex items-center justify-center gap-2 group"
+                    >
+                      <RotateCcw className="w-3 h-3 group-hover:rotate-[-120deg] transition-transform duration-500" />
+                      {t.APP.RESET_FILTERS}
+                    </button>
+                  </div>
+                )}
+
                 <div className="space-y-6">
                   {filteredFaq.map((item, index) => (
                     <div 
@@ -381,6 +484,24 @@ function AppContent() {
                               <div className="text-lg font-bold text-slate-600 leading-relaxed whitespace-pre-wrap">
                                 {getString(item.answer)}
                               </div>
+                              <div className="mt-6 flex justify-end gap-4">
+                                <button
+                                  onClick={(e) => handleInlineShare(e, item, item.id || `faq_${index + 1}`)}
+                                  className="px-6 py-2 bg-white text-slate-500 brutal-border border-slate-200 text-[10px] font-bold uppercase tracking-widest hover:border-[var(--color-neon-orange)] hover:text-[var(--color-neon-orange)] transition-all flex items-center gap-2"
+                                >
+                                  {copiedFaqId === (item.id || `faq_${index + 1}`) ? <Check className="w-3 h-3" /> : <Share2 className="w-3 h-3" />}
+                                  {copiedFaqId === (item.id || `faq_${index + 1}`) ? t.APP.COPIED : t.APP.SHARE}
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedFaqId(item.id || `faq_${index + 1}`);
+                                  }}
+                                  className="px-6 py-2 bg-[var(--color-brutal-black)] text-white text-[10px] font-bold uppercase tracking-widest hover:bg-[var(--color-neon-orange)] transition-all flex items-center gap-2 brutal-shadow-small"
+                                >
+                                  {t.APP.VIEW_DETAILS} <ChevronRight className="w-3 h-3" />
+                                </button>
+                              </div>
                             </div>
                           </motion.div>
                         )}
@@ -407,11 +528,51 @@ function AppContent() {
                       <thead>
                         <tr className="bg-[var(--color-brutal-black)] text-white font-mono text-[10px] uppercase tracking-[0.2em]">
                           <th className="px-6 py-4 border-r border-white/10 w-16">ID</th>
-                          <th className="px-6 py-4 border-r border-white/10 w-24">{t.APP.TABLE_HEADERS.YEAR}</th>
-                          <th className="px-6 py-4 border-r border-white/10">{t.APP.TABLE_HEADERS.TITLE}</th>
-                          <th className="px-6 py-4 border-r border-white/10">{t.APP.TABLE_HEADERS.AUTHOR}</th>
-                          <th className="px-6 py-4 border-r border-white/10">{t.APP.TABLE_HEADERS.INSTITUTION}</th>
-                          <th className="px-6 py-4">{t.APP.TABLE_HEADERS.DATABASE}</th>
+                          <th 
+                            className="px-6 py-4 border-r border-white/10 w-24 cursor-pointer hover:bg-white/10 transition-colors"
+                            onClick={() => handleSort(APP_CONFIG.DUCKDB_COLUMNS.YEAR)}
+                          >
+                            <div className="flex items-center gap-1">
+                              {t.APP.TABLE_HEADERS.YEAR}
+                              <SortIcon field={APP_CONFIG.DUCKDB_COLUMNS.YEAR} />
+                            </div>
+                          </th>
+                          <th 
+                            className="px-6 py-4 border-r border-white/10 cursor-pointer hover:bg-white/10 transition-colors"
+                            onClick={() => handleSort(APP_CONFIG.DUCKDB_COLUMNS.TITLE)}
+                          >
+                            <div className="flex items-center gap-1">
+                              {t.APP.TABLE_HEADERS.TITLE}
+                              <SortIcon field={APP_CONFIG.DUCKDB_COLUMNS.TITLE} />
+                            </div>
+                          </th>
+                          <th 
+                            className="px-6 py-4 border-r border-white/10 cursor-pointer hover:bg-white/10 transition-colors"
+                            onClick={() => handleSort(APP_CONFIG.DUCKDB_COLUMNS.AUTHOR)}
+                          >
+                            <div className="flex items-center gap-1">
+                              {t.APP.TABLE_HEADERS.AUTHOR}
+                              <SortIcon field={APP_CONFIG.DUCKDB_COLUMNS.AUTHOR} />
+                            </div>
+                          </th>
+                          <th 
+                            className="px-6 py-4 border-r border-white/10 cursor-pointer hover:bg-white/10 transition-colors"
+                            onClick={() => handleSort(APP_CONFIG.DUCKDB_COLUMNS.INSTITUTION)}
+                          >
+                            <div className="flex items-center gap-1">
+                              {t.APP.TABLE_HEADERS.INSTITUTION}
+                              <SortIcon field={APP_CONFIG.DUCKDB_COLUMNS.INSTITUTION} />
+                            </div>
+                          </th>
+                          <th 
+                            className="px-6 py-4 cursor-pointer hover:bg-white/10 transition-colors"
+                            onClick={() => handleSort(APP_CONFIG.DUCKDB_COLUMNS.DATABASE)}
+                          >
+                            <div className="flex items-center gap-1">
+                              {t.APP.TABLE_HEADERS.DATABASE}
+                              <SortIcon field={APP_CONFIG.DUCKDB_COLUMNS.DATABASE} />
+                            </div>
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
@@ -419,7 +580,20 @@ function AppContent() {
                           <tr key={idx} className="border-b border-black/10 hover:bg-[var(--color-brutal-black)] hover:text-white transition-all group cursor-crosshair">
                             <td className="px-6 py-4 border-r border-black/10 font-mono text-xs opacity-40 group-hover:opacity-100">{(currentPage - 1) * APP_CONFIG.ITEMS_PER_PAGE + idx + 1}</td>
                             <td className="px-6 py-4 border-r border-black/10 font-mono text-xs italic">{paper[APP_CONFIG.DUCKDB_COLUMNS.YEAR]}</td>
-                            <td className="px-6 py-4 border-r border-black/10 font-bold tracking-tight">{paper[APP_CONFIG.DUCKDB_COLUMNS.TITLE]}</td>
+                            <td className="px-6 py-4 border-r border-black/10 font-bold tracking-tight">
+                              <div className="flex flex-col gap-1">
+                                <span className="text-base">{paper[APP_CONFIG.DUCKDB_COLUMNS.TITLE]}</span>
+                                {paper[APP_CONFIG.DUCKDB_COLUMNS.ABSTRACT] ? (
+                                  <span className="text-xs font-normal text-slate-500 line-clamp-2 italic">
+                                    {paper[APP_CONFIG.DUCKDB_COLUMNS.ABSTRACT].split(/[。！？]/)[0]}...
+                                  </span>
+                                ) : (
+                                  <span className="text-xs font-normal text-slate-400 italic opacity-50">
+                                    [{t.APP.NO_ABSTRACT}]
+                                  </span>
+                                )}
+                              </div>
+                            </td>
                             <td className="px-6 py-4 border-r border-black/10 text-sm italic">{paper[APP_CONFIG.DUCKDB_COLUMNS.AUTHOR]}</td>
                             <td className="px-6 py-4 border-r border-black/10 text-xs uppercase tracking-widest opacity-60 group-hover:opacity-100">{paper[APP_CONFIG.DUCKDB_COLUMNS.INSTITUTION]}</td>
                             <td className="px-6 py-4 font-mono text-[10px] opacity-40 group-hover:opacity-100">{paper[APP_CONFIG.DUCKDB_COLUMNS.DATABASE] || 'CNKI'}</td>
@@ -497,6 +671,23 @@ function AppContent() {
       </main>
 
       <Footer onNavigate={(tab) => handleTabChange(tab)} language={language} setLanguage={setLanguage} />
+
+      <AnimatePresence>
+        {selectedFaqId && (
+          (() => {
+            const selectedFaq = faqData.find(f => f.id === selectedFaqId);
+            if (!selectedFaq) return null;
+            return (
+              <FaqDetailOverlay
+                faq={selectedFaq}
+                relatedPapers={getRelatedPapers(selectedFaq)}
+                language={language}
+                onClose={() => setSelectedFaqId(null)}
+              />
+            );
+          })()
+        )}
+      </AnimatePresence>
     </div>
   );
 }
