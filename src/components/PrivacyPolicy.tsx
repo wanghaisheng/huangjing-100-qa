@@ -1,6 +1,5 @@
 import React from 'react';
-import { Language } from '../i18n/config';
-import { PAGES_STRINGS } from '../i18n/pages';
+import { PAGES_STRINGS, Language } from '@heytcm/i18n';
 
 export const PrivacyPolicy: React.FC<{ language: Language }> = ({ language }) => {
   const t = PAGES_STRINGS[language].PRIVACY;

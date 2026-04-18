@@ -1,10 +1,9 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { BrutalScience, BrutalData, BrutalShield, BrutalHistory, BrutalProcess, BrutalMetabolism, BrutalPlant, BrutalBottle } from './BrutalArt';
-import { PAGES_STRINGS } from '../i18n/pages';
-import { Language } from '../i18n/config';
-import { APP_CONFIG, HERBS_LIST, HERBS_LIST_EN } from '../constants/config';
-import { DataService } from '../services/dataService';
+import { BrutalScience, BrutalData, BrutalShield, BrutalHistory, BrutalProcess, BrutalMetabolism, BrutalPlant, BrutalBottle } from '@heytcm/ui';
+import { PAGES_STRINGS, Language } from '@heytcm/i18n';
+import { APP_CONFIG, HERBS_LIST, HERBS_LIST_EN } from '@heytcm/config';
+import { DataService } from '@heytcm/core';
 import { BookOpen, GraduationCap, RefreshCw } from 'lucide-react';
 
 const HerbGrid = ({ language }: { language: Language }) => {
@@ -65,8 +64,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, language }
     setRandomPaper(null);
     
     // Simulate shaking duration
-    setTimeout(() => {
-      const papers = DataService.getPapers();
+    setTimeout(async () => {
+      const papers = await DataService.getPapers();
       const randomIndex = Math.floor(Math.random() * papers.length);
       setRandomPaper(papers[randomIndex]);
       setIsShaking(false);

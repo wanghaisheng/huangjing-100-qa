@@ -1,72 +1,33 @@
-# 技术架构与零硬编码规范 (Technical Architecture & Zero Hardcoding)
+# 技术架构与零硬编码规范 (Architecture & Decoupling Standards)
 
-## 1. 核心架构原则
-本架构旨在通过严格的层级解耦，实现代码在不同环境（本地、Edge Worker、Cloud）之间的无缝迁移，并确保 UI 与业务逻辑的物理分离。
+## 1. 核心分层架构：动作契约化
+系统不再区分传统的 Hooks 和 Services，而是统一抽象为 **API 层 (Action Layer)**。UI 仅通过契约调用动作，不关心是本地执行还是远程执行。
 
-### 1.1 职责分层 (Layered Responsibility)
-*   **展示层 (React Components)**: 纯 UI 渲染。禁止包含硬编码文字、样式、URL 或复杂的业务逻辑。仅负责接收 Props 和触发事件回调。
-*   **交互层 (Hooks)**: 处理客户端状态与副作用编排。通过调用 Service 层获取数据，不直接感知底层存储实现。
-*   **编排层 (Astro/Server)**: 负责路由控制、SEO 数据获取、请求上下文传递以及环境配置注入。
-*   **逻辑层 (Services)**: 纯业务逻辑函数，处理数据转换、校验和业务规则。
-*   **持久层 (Storage Adapters)**: 抽象存储访问。通过统一的 `IStorageAdapter` 接口屏蔽具体数据库（Supabase, D1, SQL.js）的差异。
+### 1.1 分层职责
+*   **表现层 (React/RN UI)**: 纯视图。通过统一的 API 客户端发起动作，接收 `Result` 对象。
+*   **API 层 (Actions/Procedures)**: 【契约中心】定义所有可执行的操作（如 `getUser`, `updateHealthLog`）。
+    *   **tRPC 实现**: 用于 Web/PWA，提供端到端类型安全的远程调用，直接连接 Cloudflare Workers。
+    *   **HTTP/REST 实现**: 用于兼容性场景或第三方集成。
+    *   **Local 实现**: 用于 React Native 或 PWA 离线模式，直接在本地运行业务逻辑。
+*   **持久层 (Storage Adapters)**: 【存储契约】API 层不直接操作数据库，而是调用 `StorageAdapter` 实现增删改查。
 
-## 2. 零硬编码准则 (Zero Hardcoding)
+## 2. 存储适配器模式 (Storage Adapter Pattern)
+为了支持从 Supabase 到 Cloudflare D1 的无缝迁移，存储层必须契约化：
+*   **实现类**: `SupabaseAdapter`, `D1Adapter`, `SqliteAdapter` (RN/Local)。
+*   **原则**: 业务逻辑仅通过 `IStorageAdapter` 接口操作数据，屏蔽具体厂商 SDK。
 
-### 2.1 字符串与国际化
-*   禁止在 UI 组件中直接写入展示文本。
-*   **规范**: 所有静态文本必须存储在 `i18n` 定义文件或配置常量中。
+## 3. 渲染策略：流量驱动型 SSG (Analytics-Driven)
+*   **90/10 法则**: Astro 构建时获取 Cloudflare 流量统计，仅预渲染前 10% 的高频页面。
+*   **动态回退**: 剩余 90% 页面由 Edge Worker 通过 API 层进行 SSR 渲染，并缓存至 KV。
 
-### 2.2 样式与设计语言
-*   禁止硬编码颜色值（#FFF）、间距（16px）或字体大小。
-*   **规范**: 必须使用设计系统定义的 Token（如 Tailwind 类名或 CSS 变量）。
+## 4. 零硬编码准则 (Zero Hardcoding Policy)
+*   **配置化**: 所有的 API Endpoint、存储提供商标识、功能开关必须存储在 `AppConfig` 中。
+*   **设计令牌 (Design Tokens)**: 样式必须使用 Token（如 `theme.spacing.md`），以便 Web (Tailwind) 与 RN (StyleSheet) 共享一套视觉逻辑。
+*   **文案国际化**: 严禁在 API 返回值或 UI 中硬编码中文/英文，必须通过 i18n ID 引用。
 
-### 2.3 URL 与端点
-*   禁止在组件或 Hooks 中直接写 `fetch('/api/v1/...')`。
-*   **规范**: 所有端点由环境配置（Environment Config）提供，并经由 Service 层统一调用。
+---
 
-### 2.4 存储提供商透明化
-*   逻辑层不得直接导入 `supabase-js` 或 `d1-client`。
-*   **规范**: 必须通过适配器模式注入，切换存储引擎只需修改配置文件中的 `Provider` 标识。
-
-## 3. 存储适配器模式 (Storage Adapter Pattern)
-
-### 3.1 统一契约 (Interface)
-```typescript
-interface IStorageAdapter {
-  query<T>(collection: string, params: QueryParams): Promise<Result<T[]>>;
-  upsert<T>(collection: string, data: T): Promise<Result<T>>;
-  delete(collection: string, id: string): Promise<Result<void>>;
-  auth: IAuthModule;
-}
-```
-### 3.2 切换逻辑
-实现 SqljsAdapter 用于客户端离线存储。
-实现 SupabaseAdapter 用于云端快速原型。
-实现 D1Adapter 用于 Edge 端生产环境。
-在初始化阶段根据 CONFIG.STORAGE_TYPE 注入实例。
-
-## 4. 数据流向规则
-读取流: Server/Astro → Service → Adapter → Adapter Implementation。
-操作流: User Action → Component Event → Hook → Service → Adapter。
-
-## 5. 动态预渲染与缓存策略 (Analytics-Driven SSG)
-为了平衡构建性能与运行速度，项目采用“流量驱动型预渲染”模式，避免对全量数据（如 100k+ 页面）进行静态生成。
-
-### 5.1 混合渲染逻辑
-构建期 (Build Time):
-流量回溯: 构建脚本查询 Cloudflare Analytics API，获取过去 30 天流量前 N (如 500) 的路由。
-选择性预渲染: Astro 仅对这 N 个路由进行静态生成 (SSG)。
-零数据库耦合: 预渲染所需数据从边缘缓存或备份中提取，不强制连接生产数据库。
-运行时 (Runtime - SSR/ISR):
-按需回退: 非高频页面使用 Cloudflare Workers 进行 SSR。
-边缘缓存: SSR 渲染后的 HTML 自动推送到 Cloudflare KV/Cache，实现 ISR (增量静态再生) 效果。
-自动发现: 流量激增的新页面将在下一次 CI/CD 循环中自动进入“高频预渲染列表”。
-
-### 5.2 存储适配器扩展
-为了支持此模式，Storage Adapter 必须实现以下能力：
-AnalyticsProvider: 抽象查询接口，用于获取热门路径。
-KVProvider: 抽象键值存储接口，用于缓存 SSR 生成的 HTML 代码片段。
-
-## 6. 零硬编码准则 (补充)
-无硬编码路由参数: 禁止使用手动维护的 generateStaticParams。
-动态注入: 预渲染列表必须作为构建参数通过环境变量或动态 JSON 注入。
+## 5. RN 迁移就绪清单
+- [ ] API 层是否实现了双端适配（tRPC 远程 / Local 运行）？
+- [ ] 所有的样式是否基于 Token 抽象，而非硬编码 CSS？
+- [ ] 是否存在逻辑层直接引用 `window` 或 `localStorage` 的情况？

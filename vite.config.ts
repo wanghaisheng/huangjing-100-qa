@@ -12,7 +12,13 @@ export default defineConfig(({mode}) => {
     },
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, '.'),
+        '@': path.resolve(__dirname, './src'),
+        'cross-fetch': path.resolve(__dirname, './src/polyfills/fetch.ts'),
+        '@heytcm/core': path.resolve(__dirname, './packages/core/src/index.ts'),
+        '@heytcm/config': path.resolve(__dirname, './packages/config/src/index.ts'),
+        '@heytcm/api': path.resolve(__dirname, './packages/api/src/index.ts'),
+        '@heytcm/i18n': path.resolve(__dirname, './packages/i18n/src/index.ts'),
+        '@heytcm/ui': path.resolve(__dirname, './packages/ui/src/index.ts'),
       },
     },
     server: {

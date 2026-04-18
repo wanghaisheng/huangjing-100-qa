@@ -28,15 +28,16 @@ export const DuckDBService = {
     initPromise = (async () => {
       try {
         console.log('Starting DuckDB initialization...');
-        const bundle = await duckdb.selectBundle(DUCKDB_BUNDLES);
-        console.log('Bundle selected:', bundle);
         
-        // Use the worker URL directly if possible, or handle worker creation differently
+        const bundle = DUCKDB_BUNDLES.mvp;
+        console.log('Bundle forced to:', bundle);
+        
         const worker = new Worker(bundle.mainWorker!);
         
         const logger = new duckdb.ConsoleLogger();
         db = new duckdb.AsyncDuckDB(logger, worker);
-        await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
+        // CRITICAL: instantiate with ONLY module to disable EH/pthread/SharedArrayBuffer requirements
+        await db.instantiate(bundle.mainModule);
         conn = await db.connect();
         
         console.log('DuckDB Initialized successfully');

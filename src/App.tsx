@@ -4,11 +4,12 @@ import { Search, Filter, BookOpen, GraduationCap, Calendar, Tag, ChevronRight, H
 import { LandingPage } from './components/LandingPage';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
-import { DataService } from './services/dataService';
-import { DuckDBService } from './services/duckdbService';
-import { FULL_PAPERS_CSV } from './data/full_papers_csv';
-import { APP_CONFIG } from './constants/config';
-import { PAGES_STRINGS } from './i18n/pages';
+import { TEST_MESSAGE, Paper, FaqItem, I18nString, DataService } from '@heytcm/core';
+import { apiClient } from '@heytcm/api';
+import { APP_CONFIG } from '@heytcm/config';
+import { PAGES_STRINGS, Language } from '@heytcm/i18n';
+
+console.log("APP_CONFIG AT TOP OF APP", APP_CONFIG);
 
 import { AboutProject } from './components/AboutProject';
 import { DataSource } from './components/DataSource';
@@ -16,9 +17,12 @@ import { Contact } from './components/Contact';
 import { AdminPage } from './components/AdminPage';
 import { PrivacyPolicy } from './components/PrivacyPolicy';
 import { TermsOfUse } from './components/TermsOfUse';
-import { Language } from './i18n/config';
+import { TenantProvider, useTenant } from './context/TenantContext';
 
-export default function App() {
+function AppContent() {
+  const { config: tenantConfig } = useTenant();
+  console.log(`[Tenant Runtime] Active AppID: ${tenantConfig.appId}`);
+
   const [showLanding, setShowLanding] = useState(true);
   const [activeTab, setActiveTab] = useState<'papers' | 'faq' | 'full_database' | 'about' | 'data_source' | 'contact' | 'admin' | 'privacy' | 'terms'>('papers');
   const [language, setLanguage] = useState<Language>('zh');
@@ -35,28 +39,30 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalFullPapers, setTotalFullPapers] = useState(0);
 
-  // Data fetching via Service (Simulation of Astro data flow)
-  const papers = useMemo(() => DataService.getPapers(), []);
-  const categories = useMemo(() => DataService.getCategories(), []);
-  const faqData = useMemo(() => DataService.getFaqData(), []);
-  const faqCategories = useMemo(() => DataService.getFaqCategories(), []);
+  const [papers, setPapers] = useState<Paper[]>([]);
+  const [categories, setCategories] = useState<(string | I18nString)[]>([]);
+  const [faqData, setFaqData] = useState<FaqItem[]>([]);
+  const [faqCategories, setFaqCategories] = useState<(string | I18nString)[]>([]);
 
-  // Initialize DuckDB
+  // Fetch initial data
   useEffect(() => {
-    const initDB = async () => {
-      try {
-        await DuckDBService.init();
-        await DuckDBService.loadData('papers', papers);
-        await DuckDBService.loadData('faq', faqData);
-        // Load the full literature list from the imported CSV string
-        await DuckDBService.loadCSVText('full_papers', FULL_PAPERS_CSV);
-        setIsDuckDBReady(true);
-      } catch (err) {
-        console.error('DuckDB Init Error:', err);
-      }
+    const fetchData = async () => {
+      // First seed the database
+      await DataService.seedDemoData();
+      
+      setPapers(await apiClient.papers.list());
+      setCategories(await apiClient.papers.getCategories());
+      setFaqData(await apiClient.faq.list());
+      setFaqCategories(await apiClient.faq.getCategories());
+      setIsDuckDBReady(true);
     };
-    initDB();
-  }, [papers, faqData]);
+    fetchData();
+  }, []);
+
+  // Data ready
+  useEffect(() => {
+    // setIsDuckDBReady moved inside fetchData to trigger after seed
+  }, []);
 
   const getString = (val: string | { zh: string; en: string } | undefined, lang: Language = language): string => {
     if (typeof val === 'string') return val;
@@ -135,22 +141,8 @@ export default function App() {
       const fetchFull = async () => {
         setIsSearchingFull(true);
         try {
-          let whereClause = '';
-          if (searchQuery) {
-            whereClause = ` WHERE "${APP_CONFIG.DUCKDB_COLUMNS.TITLE}" LIKE '%${searchQuery}%' OR "${APP_CONFIG.DUCKDB_COLUMNS.AUTHOR}" LIKE '%${searchQuery}%' OR "${APP_CONFIG.DUCKDB_COLUMNS.INSTITUTION}" LIKE '%${searchQuery}%'`;
-          }
-
-          // Fetch total count
-          const countQuery = `SELECT COUNT(*) as count FROM full_papers${whereClause}`;
-          const countResult = await DuckDBService.query(countQuery);
-          const total = Number(countResult[0]?.count || 0);
+          const { results, total } = await apiClient.fullDatabase.search(searchQuery, currentPage, APP_CONFIG.ITEMS_PER_PAGE);
           setTotalFullPapers(total);
-
-          // Fetch paginated results
-          const offset = (currentPage - 1) * APP_CONFIG.ITEMS_PER_PAGE;
-          const query = `SELECT * FROM full_papers${whereClause} LIMIT ${APP_CONFIG.ITEMS_PER_PAGE} OFFSET ${offset}`;
-          
-          const results = await DuckDBService.query(query);
           setFullPapers(results);
         } catch (err) {
           console.error('DuckDB Search Error:', err);
@@ -173,6 +165,7 @@ export default function App() {
       />
 
       <main className="flex-1 w-full">
+        <div className="bg-yellow-100 p-2 text-center text-sm font-mono">{TEST_MESSAGE}</div>
         {showLanding ? (
           <LandingPage onNavigate={handleTabChange} language={language} />
         ) : (
@@ -513,5 +506,13 @@ export default function App() {
 
       <Footer onNavigate={(tab) => handleTabChange(tab)} language={language} setLanguage={setLanguage} />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <TenantProvider>
+      <AppContent />
+    </TenantProvider>
   );
 }

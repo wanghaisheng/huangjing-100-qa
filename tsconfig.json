@@ -17,7 +17,43 @@
     "jsx": "react-jsx",
     "paths": {
       "@/*": [
-        "./*"
+        "./src/*"
+      ],
+      "@heytcm/core": [
+        "./packages/core/src/index.ts"
+      ],
+      "@heytcm/core/*": [
+        "./packages/core/src/*"
+      ],
+      "@heytcm/config": [
+        "./packages/config/src/index.ts"
+      ],
+      "@heytcm/config/*": [
+        "./packages/config/src/*"
+      ],
+      "@heytcm/api": [
+        "./packages/api/src/index.ts"
+      ],
+      "@heytcm/api/*": [
+        "./packages/api/src/*"
+      ],
+      "@heytcm/i18n": [
+        "./packages/i18n/src/index.ts"
+      ],
+      "@heytcm/i18n/*": [
+        "./packages/i18n/src/*"
+      ],
+      "@heytcm/ui": [
+        "./packages/ui/src/index.ts"
+      ],
+      "@heytcm/ui/*": [
+        "./packages/ui/src/*"
+      ],
+      "@heytcm/types": [
+        "./packages/types/src/index.ts"
+      ],
+      "@heytcm/types/*": [
+        "./packages/types/src/*"
       ]
     },
     "allowImportingTsExtensions": true,

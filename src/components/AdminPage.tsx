@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { DuckDBService } from '../services/duckdbService';
-import { getStorage } from '../services/storage';
-import { PAGES_STRINGS } from '../i18n/pages';
-import { Language } from '../i18n/config';
-import { SITE_CONFIG } from '../config/siteConfig';
+import { DuckDBService, getStorage } from '@heytcm/core';
+import { PAGES_STRINGS, Language } from '@heytcm/i18n';
+import { APP_CONFIG } from '@heytcm/config';
+import { SITE_CONFIG } from '@heytcm/config';
 
 export const AdminPage = ({ language }: { language: Language }) => {
   const t = PAGES_STRINGS[language].ADMIN;
@@ -72,7 +71,7 @@ export const AdminPage = ({ language }: { language: Language }) => {
       if (!Array.isArray(data)) {
         throw new Error('Processed data is not a JSON array');
       }
-      const storage = getStorage();
+      const storage = getStorage(APP_CONFIG.STORAGE_PROVIDER as 'supabase' | 'sqljs');
       for (const item of data) {
         if (!item.id) {
           item.id = crypto.randomUUID();
@@ -130,7 +129,7 @@ export const AdminPage = ({ language }: { language: Language }) => {
     setIsProcessing(true);
     setMessage('');
     try {
-      const storage = getStorage();
+      const storage = getStorage(APP_CONFIG.STORAGE_PROVIDER as 'supabase' | 'sqljs');
       try {
         await storage.read('site_config', 'default');
         await storage.update('site_config', 'default', siteConfig);

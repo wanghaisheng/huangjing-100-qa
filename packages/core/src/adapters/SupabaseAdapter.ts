@@ -2,27 +2,50 @@ import { createClient, SupabaseClient, User } from '@supabase/supabase-js';
 import { StorageAdapter } from '../types';
 
 export class SupabaseAdapter<T extends { id: string }> implements StorageAdapter<T, User> {
-  private client: SupabaseClient;
+  private client: SupabaseClient | null = null;
+  private appId: string | null = null;
 
-  constructor() {
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const supabaseKey = import.meta.env.VITE_SUPABASE_KEY;
+  constructor() {}
 
-    if (!supabaseUrl || !supabaseKey) {
-      throw new Error('Supabase configuration is missing');
+  private ensureClient(): SupabaseClient {
+    if (!this.client) {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_KEY;
+
+      if (!supabaseUrl || !supabaseKey) {
+        throw new Error('Supabase configuration is missing');
+      }
+
+      this.client = createClient(supabaseUrl, supabaseKey);
     }
-
-    this.client = createClient(supabaseUrl, supabaseKey);
+    return this.client;
   }
 
+  setAppId(appId: string): void {
+    this.appId = appId;
+  }
+
+  private getBaseTable = (collection: string) => {
+    return this.ensureClient().from(collection);
+  };
+
+  private getAuthorizedQuery = (collection: string) => {
+    let query = this.getBaseTable(collection).select('*');
+    if (this.appId) {
+      query = query.eq('appId', this.appId);
+    }
+    return query;
+  };
+
   async create(collection: string, data: T): Promise<T> {
-    const { data: result, error } = await this.client.from(collection).insert(data).select().single();
+    const dataWithAppId = this.appId ? { ...data, appId: this.appId } : data;
+    const { data: result, error } = await this.getBaseTable(collection).insert(dataWithAppId as any).select().single();
     if (error) throw error;
     return result as T;
   }
 
   async read(collection: string, id: string): Promise<T | null> {
-    const { data, error } = await this.client.from(collection).select('*').eq('id', id).single();
+    const { data, error } = await this.getAuthorizedQuery(collection).eq('id', id).single();
     if (error) {
       if (error.code === 'PGRST116') return null; // Not found
       throw error;
@@ -31,18 +54,26 @@ export class SupabaseAdapter<T extends { id: string }> implements StorageAdapter
   }
 
   async update(collection: string, id: string, data: Partial<T>): Promise<T> {
-    const { data: result, error } = await this.client.from(collection).update(data as any).eq('id', id).select().single();
+    let query = this.getBaseTable(collection).update(data as any).eq('id', id);
+    if (this.appId) {
+      query = query.eq('appId', this.appId);
+    }
+    const { data: result, error } = await query.select().single();
     if (error) throw error;
     return result as T;
   }
 
   async delete(collection: string, id: string): Promise<void> {
-    const { error } = await this.client.from(collection).delete().eq('id', id);
+    let query = this.getBaseTable(collection).delete().eq('id', id);
+    if (this.appId) {
+      query = query.eq('appId', this.appId);
+    }
+    const { error } = await query;
     if (error) throw error;
   }
 
   async query(collection: string, filter: Record<string, unknown>): Promise<T[]> {
-    let query = this.client.from(collection).select('*');
+    let query = this.getAuthorizedQuery(collection);
     // Basic filter implementation
     for (const [key, value] of Object.entries(filter)) {
       query = query.eq(key, value);

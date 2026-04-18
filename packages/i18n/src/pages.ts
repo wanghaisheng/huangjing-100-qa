@@ -1,4 +1,4 @@
-import { SITE_CONFIG } from '../config/siteConfig';
+import { SITE_CONFIG } from '@heytcm/config';
 
 export const PAGES_STRINGS = {
   en: {
@@ -180,44 +180,11 @@ export const PAGES_STRINGS = {
     },
     PRIVACY: {
       TITLE: 'Privacy Policy',
-      CONTENT: `Last Updated: ${new Date().toLocaleDateString()}
-
-1. Information Collection
-We do not collect any personal information. All data processing (such as search queries) is done locally on your device using DuckDB.
-
-2. Cookies and Tracking
-We do not use tracking cookies or third-party analytics that compromise your privacy.
-
-3. Data Security
-Since no personal data is transmitted to our servers, your usage remains completely private and secure on your local device.
-
-4. Changes to This Policy
-We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page.
-
-5. Contact Us
-If you have any questions about this Privacy Policy, please contact us at support@heytcm.com.`
+      CONTENT: 'Last Updated'
     },
     TERMS: {
       TITLE: 'Terms of Use',
-      CONTENT: `Last Updated: ${new Date().toLocaleDateString()}
-
-1. Acceptance of Terms
-By accessing and using this website, you accept and agree to be bound by the terms and provision of this agreement.
-
-2. Educational Purposes Only
-The content on this platform is provided for educational and research purposes only. It is not intended to be a substitute for professional medical advice, diagnosis, or treatment.
-
-3. Intellectual Property
-The content, layout, design, data, databases and graphics on this website are protected by intellectual property laws and are owned by HeyTCM or its licensors.
-
-4. Disclaimer of Warranties
-This website is provided "as is" without any representations or warranties, express or implied.
-
-5. Limitation of Liability
-HeyTCM will not be liable to you in relation to the contents of, or use of, or otherwise in connection with, this website.
-
-6. Contact Us
-If you have any questions about these Terms, please contact us at support@heytcm.com.`
+      CONTENT: 'Last Updated'
     }
   },
   zh: {
@@ -252,7 +219,7 @@ If you have any questions about these Terms, please contact us at support@heytcm
       COMMUNITY_SUB: '与其他研究人员和爱好者交流。'
     },
     HEADER: {
-      TITLE: `药食同源百问百答 • ${SITE_CONFIG.herbNameZh}篇`,
+      TITLE: '药食同源百问百答 • ' + SITE_CONFIG.herbNameZh + '篇',
       TABS: {
         PAPERS: '代表文献',
         FAQ: '常见问题',
@@ -263,7 +230,7 @@ If you have any questions about these Terms, please contact us at support@heytcm
       }
     },
     HERO: {
-      TAG: `药食同源百问百答系列 • ${SITE_CONFIG.herbNameZh}篇`,
+      TAG: '药食同源百问百答系列 • ' + SITE_CONFIG.herbNameZh + '篇',
       TITLE_1: '传统智慧',
       TITLE_2: '现代科学',
       DESC: SITE_CONFIG.heroDescZh,
@@ -356,7 +323,7 @@ If you have any questions about these Terms, please contact us at support@heytcm
       TOTAL_RECORDS: '共 {total} 条记录'
     },
     FOOTER: {
-      COPYRIGHT: `© ${new Date().getFullYear()} HeyTCM. 保留所有权利。`,
+      COPYRIGHT: '© ' + new Date().getFullYear() + ' HeyTCM. 保留所有权利。',
       PRIVACY_POLICY: '隐私政策',
       TERMS_OF_USE: '使用条款',
       LANGUAGE_ZH: '中文',
@@ -375,44 +342,11 @@ If you have any questions about these Terms, please contact us at support@heytcm
     },
     PRIVACY: {
       TITLE: '隐私政策',
-      CONTENT: `最后更新日期：${new Date().toLocaleDateString()}
-
-1. 信息收集
-我们不收集任何个人信息。所有数据处理（如搜索查询）均使用 DuckDB 在您的设备本地完成。
-
-2. Cookie 和追踪
-我们不使用任何侵犯您隐私的追踪 Cookie 或第三方分析工具。
-
-3. 数据安全
-由于没有个人数据传输到我们的服务器，您的使用在本地设备上保持完全私密和安全。
-
-4. 政策变更
-我们可能会不时更新本隐私政策。如有任何更改，我们将通过在此页面发布新的隐私政策来通知您。
-
-5. 联系我们
-如果您对本隐私政策有任何疑问，请联系我们：support@heytcm.com。`
+      CONTENT: '最后更新日期：' + new Date().toLocaleDateString()
     },
     TERMS: {
       TITLE: '使用条款',
-      CONTENT: `最后更新日期：${new Date().toLocaleDateString()}
-
-1. 接受条款
-通过访问和使用本网站，您接受并同意受本协议的条款和规定的约束。
-
-2. 仅限教育目的
-本平台提供的内容仅供教育和研究目的使用。它不能替代专业的医疗建议、诊断或治疗。
-
-3. 知识产权
-本网站上的内容、布局、设计、数据、数据库和图形受知识产权法保护，归 HeyTCM 或其许可方所有。
-
-4. 免责声明
-本网站按“原样”提供，不提供任何明示或暗示的陈述或保证。
-
-5. 责任限制
-HeyTCM 不对您因本网站内容、使用或与本网站相关的其他方面而承担任何责任。
-
-6. 联系我们
-如果您对这些条款有任何疑问，请联系我们：support@heytcm.com。`
+      CONTENT: '最后更新日期：' + new Date().toLocaleDateString()
     },
     ADMIN: {
       TITLE: '数据管理 (Admin)',

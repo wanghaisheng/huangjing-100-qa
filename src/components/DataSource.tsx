@@ -1,8 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Database } from 'lucide-react';
-import { Language } from '../i18n/config';
-import { PAGES_STRINGS } from '../i18n/pages';
+import { PAGES_STRINGS, Language } from '@heytcm/i18n';
 
 export const DataSource: React.FC<{ language: Language }> = ({ language }) => {
   const t = PAGES_STRINGS[language].DATA_SOURCE;

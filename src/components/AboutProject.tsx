@@ -1,8 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Info } from 'lucide-react';
-import { Language } from '../i18n/config';
-import { PAGES_STRINGS } from '../i18n/pages';
+import { PAGES_STRINGS, Language } from '@heytcm/i18n';
 
 export const AboutProject: React.FC<{ language: Language }> = ({ language }) => {
   const t = PAGES_STRINGS[language].ABOUT;

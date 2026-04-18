@@ -1,7 +1,6 @@
 import React from 'react';
 import { Leaf } from 'lucide-react';
-import { Language } from '../i18n/config';
-import { PAGES_STRINGS } from '../i18n/pages';
+import { PAGES_STRINGS, Language } from '@heytcm/i18n';
 
 interface HeaderProps {
   onLogoClick: () => void;

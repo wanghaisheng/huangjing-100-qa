@@ -1,4 +1,4 @@
-import { SITE_CONFIG } from '../config/siteConfig';
+import { SITE_CONFIG } from './siteConfig';
 
 export const APP_CONFIG = {
   NAME: `药食同源百问百答 • ${SITE_CONFIG.herbNameZh}篇`,
